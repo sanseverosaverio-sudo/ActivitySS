@@ -1042,6 +1042,9 @@
               <input type="checkbox" id="f_rd">
               <label for="f_rd">R&amp;D Support Required</label>
             </div>
+            <div class="sub-field" id="rdField">
+              <input type="number" id="f_rdHours" placeholder="R&D Hours Used" min="0" step="0.5">
+            </div>
 
             <div class="check-row">
               <input type="checkbox" id="f_ecrEnabled">
@@ -1121,11 +1124,12 @@
 
     <div class="stat-strip">
       <div class="stat-box"><div class="num" id="statTotalTasks">0</div><div class="lbl">Total Activities</div></div>
-      <div class="stat-box"><div class="num" id="statTotalHours">0</div><div class="lbl">Total Hours</div></div>
+      <div class="stat-box" title="Working hours only: Mon-Fri, 09:00-18:00, lunch break excluded. Nights and weekends are not counted."><div class="num" id="statTotalHours">0</div><div class="lbl">Total Hours</div></div>
       <div class="stat-box"><div class="num" id="statDoneTasks">0</div><div class="lbl">Completed</div></div>
       <div class="stat-box"><div class="num" id="statEcr">0</div><div class="lbl">Linked to ECR</div></div>
       <div class="stat-box"><div class="num" id="statOcn">0</div><div class="lbl">Linked to OCN</div></div>
       <div class="stat-box"><div class="num" id="statRd">0</div><div class="lbl">With R&amp;D Support</div></div>
+      <div class="stat-box" title="Working hours only: Mon-Fri, 09:00-18:00, lunch break excluded."><div class="num" id="statRdHours">0</div><div class="lbl">R&amp;D Hours Used</div></div>
     </div>
 
     <div class="dash-grid">
@@ -1147,6 +1151,17 @@
       <div class="panel">
         <div class="panel-head"><h2>Hours by Activity Type</h2><span class="tag">hours</span></div>
         <div class="chart-wrap" id="chartTypeHours"></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>R&amp;D Hours by Product</h2><span class="tag">hours</span></div>
+        <div class="chart-wrap" id="chartRdProduct"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>R&amp;D Hours by Activity</h2><span class="tag">hours</span></div>
+        <div class="chart-wrap" id="chartRdActivity"></div>
       </div>
     </div>
 
@@ -1356,6 +1371,7 @@
       field.classList.toggle('show', cb.checked);
     });
   }
+  bindToggle('f_rd','rdField');
   bindToggle('f_ecrEnabled','ecrField');
   bindToggle('f_ocnEnabled','ocnField');
 
@@ -1382,6 +1398,7 @@
       end: end,
       type: document.getElementById('f_type').value,
       rd: document.getElementById('f_rd').checked,
+      rdHours: document.getElementById('f_rd').checked ? (parseFloat(document.getElementById('f_rdHours').value) || 0) : 0,
       ecrEnabled: document.getElementById('f_ecrEnabled').checked,
       ecrNumber: document.getElementById('f_ecrNumber').value.trim(),
       ocnEnabled: document.getElementById('f_ocnEnabled').checked,
@@ -1405,6 +1422,7 @@
     form.reset();
     selectedPriority = 'Medium';
     document.querySelectorAll('.priority-btn').forEach(function(b){b.classList.toggle('active', b.dataset.p==='Medium');});
+    document.getElementById('rdField').classList.remove('show');
     document.getElementById('ecrField').classList.remove('show');
     document.getElementById('ocnField').classList.remove('show');
     renderList();
@@ -1415,6 +1433,7 @@
     form.reset();
     selectedPriority = 'Medium';
     document.querySelectorAll('.priority-btn').forEach(function(b){b.classList.toggle('active', b.dataset.p==='Medium');});
+    document.getElementById('rdField').classList.remove('show');
     document.getElementById('ecrField').classList.remove('show');
     document.getElementById('ocnField').classList.remove('show');
     document.getElementById('btnSubmit').textContent = 'Add Activity';
@@ -1433,12 +1452,14 @@
     document.getElementById('f_end').value = t.end;
     document.getElementById('f_type').value = t.type;
     document.getElementById('f_rd').checked = t.rd;
+    document.getElementById('f_rdHours').value = t.rdHours || '';
     document.getElementById('f_ecrEnabled').checked = t.ecrEnabled;
     document.getElementById('f_ecrNumber').value = t.ecrNumber || '';
     document.getElementById('f_ocnEnabled').checked = t.ocnEnabled;
     document.getElementById('f_ocnNumber').value = t.ocnNumber || '';
     document.getElementById('f_notes').value = t.notes || '';
     document.getElementById('f_done').checked = t.done;
+    document.getElementById('rdField').classList.toggle('show', t.rd);
     document.getElementById('ecrField').classList.toggle('show', t.ecrEnabled);
     document.getElementById('ocnField').classList.toggle('show', t.ocnEnabled);
     selectedPriority = t.priority;
@@ -1458,9 +1479,44 @@
     renderDashboard();
   }
 
+  // Working-hours calculation: counts only Mon-Fri, 09:00-18:00, excluding
+  // the 13:00-14:00 lunch break (8 effective working hours/day). Nights,
+  // weekends, and the lunch break are never counted toward activity hours —
+  // this matters especially for multi-day activities (e.g. "start today,
+  // due in two weeks"), where raw calendar hours would wildly overstate
+  // actual effort.
+  var WORK_DAY_START = 9;
+  var WORK_LUNCH_START = 13;
+  var WORK_LUNCH_END = 14;
+  var WORK_DAY_END = 18;
+
   function hoursBetween(start, end){
-    var ms = new Date(end) - new Date(start);
-    return Math.max(0, ms / 3600000);
+    var s = new Date(start);
+    var e = new Date(end);
+    if(e <= s) return 0;
+
+    var totalMs = 0;
+    var day = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+    var lastDay = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+
+    while(day <= lastDay){
+      var dow = day.getDay(); // 0 = Sunday, 6 = Saturday
+      if(dow !== 0 && dow !== 6){
+        var y = day.getFullYear(), m = day.getMonth(), d = day.getDate();
+        var segments = [
+          [new Date(y,m,d,WORK_DAY_START,0,0,0), new Date(y,m,d,WORK_LUNCH_START,0,0,0)],
+          [new Date(y,m,d,WORK_LUNCH_END,0,0,0), new Date(y,m,d,WORK_DAY_END,0,0,0)]
+        ];
+        for(var i=0;i<segments.length;i++){
+          var segStart = segments[i][0], segEnd = segments[i][1];
+          var os = segStart < s ? s : segStart;
+          var oe = segEnd > e ? e : segEnd;
+          if(oe > os) totalMs += (oe - os);
+        }
+      }
+      day = new Date(day.getFullYear(), day.getMonth(), day.getDate()+1);
+    }
+    return Math.max(0, totalMs / 3600000);
   }
   function fmtHours(h){
     return (Math.round(h*10)/10).toString() + ' h';
@@ -1509,7 +1565,7 @@
       badges += '<span class="badge product">'+escapeHtml(t.product)+'</span>';
       badges += '<span class="badge">'+t.type+'</span>';
       badges += '<span class="badge status-'+status+'">'+statusLabel(status)+'</span>';
-      if(t.rd) badges += '<span class="badge rd">R&amp;D</span>';
+      if(t.rd) badges += '<span class="badge rd">R&amp;D'+(t.rdHours ? ' '+t.rdHours+'h' : '')+'</span>';
       if(t.ecrEnabled) badges += '<span class="badge ecr">ECR '+escapeHtml(t.ecrNumber||'—')+'</span>';
       if(t.ocnEnabled) badges += '<span class="badge ocn">OCN '+escapeHtml(t.ocnNumber||'—')+'</span>';
 
@@ -1631,6 +1687,8 @@
     document.getElementById('statEcr').textContent = filtered.filter(function(t){return t.ecrEnabled;}).length;
     document.getElementById('statOcn').textContent = filtered.filter(function(t){return t.ocnEnabled;}).length;
     document.getElementById('statRd').textContent = filtered.filter(function(t){return t.rd;}).length;
+    var totalRdHours = filtered.reduce(function(sum,t){ return sum + (t.rd ? (t.rdHours||0) : 0); }, 0);
+    document.getElementById('statRdHours').textContent = (Math.round(totalRdHours*10)/10).toString();
 
     var byProduct = {};
     filtered.forEach(function(t){
@@ -1662,6 +1720,29 @@
     document.getElementById('chartPriority').insertAdjacentHTML('beforeend', legendHTML(['High','Medium','Low'], [byPriority.High||0, byPriority.Medium||0, byPriority.Low||0], ['#e2574c','#eab308','#43c6ac'], ''));
 
     document.getElementById('chartTypeHours').innerHTML = barListHTML(typeKeys, typeKeys.map(function(k){return Math.round(byType[k].hours*10)/10;}), '#ff8b3d', ' h');
+
+    var emptyRdMsg = '<div style="padding:20px 8px; color:var(--muted-2); font-family:\'IBM Plex Mono\',monospace; font-size:11px;">No R&D hours logged in the selected period.</div>';
+
+    var byProductRd = {};
+    filtered.forEach(function(t){
+      if(t.rd && t.rdHours){
+        if(!byProductRd[t.product]) byProductRd[t.product] = 0;
+        byProductRd[t.product] += t.rdHours;
+      }
+    });
+    var rdProductKeys = Object.keys(byProductRd).sort(function(a,b){return byProductRd[b]-byProductRd[a];});
+    document.getElementById('chartRdProduct').innerHTML = rdProductKeys.length > 0
+      ? barListHTML(rdProductKeys, rdProductKeys.map(function(k){return Math.round(byProductRd[k]*10)/10;}), '#7fb8ff', ' h')
+      : emptyRdMsg;
+
+    var rdActivities = filtered.filter(function(t){ return t.rd && t.rdHours; })
+      .sort(function(a,b){return b.rdHours-a.rdHours;})
+      .slice(0,12);
+    var rdActLabels = rdActivities.map(function(t){ return t.title.length>30 ? t.title.slice(0,30)+'…' : t.title; });
+    var rdActValues = rdActivities.map(function(t){ return Math.round(t.rdHours*10)/10; });
+    document.getElementById('chartRdActivity').innerHTML = rdActivities.length > 0
+      ? barListHTML(rdActLabels, rdActValues, '#43c6ac', ' h')
+      : emptyRdMsg;
 
     var tblProdBody = document.querySelector('#tblProduct tbody');
     tblProdBody.innerHTML = productKeys.sort(function(a,b){return byProduct[b].hours-byProduct[a].hours;}).map(function(k){
@@ -1981,7 +2062,6 @@
   }
 
   var voiceDraftBaseline = '';
-  var lastProcessedFinalIndex = -1;
 
   function setupSpeechRecognition(){
     if(recognitionReady) return;
@@ -1995,35 +2075,36 @@
       return;
     }
     recognition = new SR();
-    recognition.continuous = true;
+    // NOTE: continuous=true is unreliable on Android Chrome — the engine
+    // periodically re-emits the *entire* phrase spoken so far as a fresh
+    // "final" result instead of only the new words, which caused the text
+    // to duplicate itself repeatedly. Using single-utterance recognition
+    // (continuous=false) with auto-restart on each pause is the standard,
+    // reliable workaround: each session yields exactly one clean final
+    // result, which we then append once to the accumulated transcript.
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.onresult = function(e){
-      // Process only NEW final results since the last event (using e.resultIndex).
-      // This prevents re-processing of results when the speech recognition session
-      // auto-restarts and re-sends previously-final results.
-      var newFinalPart = '';
-      var interimPart = '';
-      var resultIndex = e.resultIndex;
-      
-      for(var i = resultIndex; i < e.results.length; i++){
-        var piece = e.results[i][0].transcript;
-        if(e.results[i].isFinal){
-          if(i > lastProcessedFinalIndex){
-            newFinalPart += piece + ' ';
-            lastProcessedFinalIndex = i;
-          }
-        } else {
-          interimPart += piece;
-        }
+      var text = '';
+      var isFinal = false;
+      for(var i = 0; i < e.results.length; i++){
+        text += e.results[i][0].transcript;
+        if(e.results[i].isFinal) isFinal = true;
       }
-      
-      finalTranscript += newFinalPart;
-      var combined = (voiceDraftBaseline + finalTranscript + interimPart).replace(/\s+/g,' ').trim();
-      document.getElementById('voiceTranscript').value = combined;
+      if(isFinal){
+        finalTranscript += text + ' ';
+        document.getElementById('voiceTranscript').value = (voiceDraftBaseline + finalTranscript).replace(/\s+/g,' ').trim();
+      } else {
+        var live = (voiceDraftBaseline + finalTranscript + text).replace(/\s+/g,' ').trim();
+        document.getElementById('voiceTranscript').value = live;
+      }
     };
     recognition.onerror = function(e){
-      document.getElementById('voiceStatus').textContent = 'Recognition error: ' + e.error;
-      stopRecording();
+      if(e.error !== 'no-speech'){
+        document.getElementById('voiceStatus').textContent = 'Recognition error: ' + e.error;
+      }
+      // 'no-speech' just means a pause was detected between utterances —
+      // onend will fire right after and auto-restart handles it silently.
     };
     recognition.onend = function(){
       if(isRecording){
@@ -2037,7 +2118,6 @@
     var current = document.getElementById('voiceTranscript').value.trim();
     voiceDraftBaseline = current ? current + ' ' : '';
     finalTranscript = '';
-    lastProcessedFinalIndex = -1;
     recognition.lang = document.getElementById('voiceLang').value;
     isRecording = true;
     try{ recognition.start(); }catch(e){}
@@ -2090,6 +2170,12 @@
     return 'Other';
   }
   function extractRd(t){ return /\br\s?&\s?d\b|ricerca e sviluppo/i.test(t); }
+  function extractRdHours(t){
+    var m = t.match(/(\d+(?:[.,]\d+)?)\s*(?:ore|ora|h\b|hours?|hrs?)\s*(?:di\s+)?(?:r\s?&\s?d|ricerca e sviluppo)/i)
+         || t.match(/(?:r\s?&\s?d|ricerca e sviluppo)[^.;]{0,20}?(\d+(?:[.,]\d+)?)\s*(?:ore|ora|h\b|hours?|hrs?)/i);
+    if(m) return parseFloat(m[1].replace(',','.'));
+    return 0;
+  }
   function extractEcr(t){
     var m = t.match(/ecr[\s\-]?(\d{2,6})/i);
     return m ? { enabled:true, number:'ECR-'+m[1] } : { enabled:false, number:'' };
@@ -2263,6 +2349,7 @@
       var priority = extractPriority(chunk);
       var type = extractType(chunk);
       var rd = extractRd(chunk);
+      var rdHours = rd ? extractRdHours(chunk) : 0;
       var ecr = extractEcr(chunk);
       var ocn = extractOcn(chunk);
       var namedProduct = extractNamedProduct(chunk);
@@ -2277,7 +2364,7 @@
           results.push({
             title: product + ' — production unit ' + i + ' of ' + quantity,
             desc: baseTitle, product: product, priority: priority,
-            start: dt.start, end: dt.end, type: type, rd: rd,
+            start: dt.start, end: dt.end, type: type, rd: rd, rdHours: rdHours,
             ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
             ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
             notes: 'Drafted from voice capture — unit ' + i + ' of ' + quantity + '. Please verify before relying on this record.',
@@ -2287,7 +2374,7 @@
       } else {
         results.push({
           title: baseTitle, desc: '', product: product, priority: priority,
-          start: dt.start, end: dt.end, type: type, rd: rd,
+          start: dt.start, end: dt.end, type: type, rd: rd, rdHours: rdHours,
           ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
           ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
           notes: 'Drafted from voice capture — please verify before relying on this record.',
@@ -2335,6 +2422,7 @@
       '</div>'+
       '<div class="vd-flags">'+
         '<label class="vd-flag"><input type="checkbox" data-field="rd" '+(d.rd?'checked':'')+'> R&amp;D</label>'+
+        '<input type="number" class="vd-input vd-num" data-field="rdHours" placeholder="R&D hrs" min="0" step="0.5" value="'+(d.rdHours||'')+'" style="display:'+(d.rd?'inline-block':'none')+';">'+
         '<label class="vd-flag"><input type="checkbox" data-field="ecrEnabled" '+(d.ecrEnabled?'checked':'')+'> ECR</label>'+
         '<input type="text" class="vd-input vd-num" data-field="ecrNumber" placeholder="ECR #" value="'+escapeHtml(d.ecrNumber)+'" style="display:'+(d.ecrEnabled?'inline-block':'none')+';">'+
         '<label class="vd-flag"><input type="checkbox" data-field="ocnEnabled" '+(d.ocnEnabled?'checked':'')+'> OCN</label>'+
@@ -2369,6 +2457,13 @@
       var numField = field === 'ecrEnabled' ? 'ecrNumber' : 'ocnNumber';
       var numInput = card.querySelector('[data-field="'+numField+'"]');
       if(numInput) numInput.style.display = val ? 'inline-block' : 'none';
+    }
+    if(field === 'rd'){
+      var rdHoursInput = card.querySelector('[data-field="rdHours"]');
+      if(rdHoursInput) rdHoursInput.style.display = val ? 'inline-block' : 'none';
+    }
+    if(field === 'rdHours'){
+      voiceDrafts[idx][field] = parseFloat(val) || 0;
     }
   }
   document.getElementById('voiceDrafts').addEventListener('input', voiceDraftFieldHandler);
@@ -2407,6 +2502,7 @@
         end: d.end,
         type: d.type,
         rd: !!d.rd,
+        rdHours: d.rd ? (parseFloat(d.rdHours) || 0) : 0,
         ecrEnabled: !!d.ecrEnabled,
         ecrNumber: d.ecrNumber || '',
         ocnEnabled: !!d.ocnEnabled,
@@ -2445,7 +2541,7 @@
         desc:'Investigated recurring weld porosity on the frame assembly line and identified fixture misalignment as the primary cause.',
         product:'Product Alpha', priority:'High',
         start: isoLocal(hoursAgo(96)), end: isoLocal(hoursAgo(90)),
-        type:'NPI', rd:true,
+        type:'NPI', rd:true, rdHours:4,
         ecrEnabled:true, ecrNumber:'ECR-2201',
         ocnEnabled:false, ocnNumber:'',
         notes:'Root cause confirmed with Quality. Fixture redesign requested via ECR-2201.',
@@ -2467,7 +2563,7 @@
         desc:'Second design review cycle for the updated enclosure vents ahead of pilot build.',
         product:'Product Alpha', priority:'High',
         start: isoLocal(hoursAgo(6)), end: isoLocal(hoursFromNow(2)),
-        type:'NPI', rd:true,
+        type:'NPI', rd:true, rdHours:4,
         ecrEnabled:true, ecrNumber:'ECR-2214',
         ocnEnabled:false, ocnNumber:'',
         notes:'Awaiting thermal simulation results before sign-off.',
@@ -2511,7 +2607,7 @@
         desc:'On-floor engineering support during the rev C pilot build run.',
         product:'Product Alpha', priority:'Medium',
         start: isoLocal(hoursAgo(240)), end: isoLocal(hoursAgo(228)),
-        type:'NPI', rd:true,
+        type:'NPI', rd:true, rdHours:4,
         ecrEnabled:true, ecrNumber:'ECR-2189',
         ocnEnabled:false, ocnNumber:'',
         notes:'Pilot build completed with no major issues.',
