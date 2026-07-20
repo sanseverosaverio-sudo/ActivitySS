@@ -1981,6 +1981,7 @@
   }
 
   var voiceDraftBaseline = '';
+  var lastProcessedFinalIndex = -1;
 
   function setupSpeechRecognition(){
     if(recognitionReady) return;
@@ -1997,17 +1998,27 @@
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onresult = function(e){
-      // Rebuild the transcript from the full current results snapshot on every
-      // event (rather than incrementally appending) — some mobile browsers
-      // re-emit already-finalized results, which caused duplicated text.
-      var finalPart = '', interimPart = '';
-      for(var i = 0; i < e.results.length; i++){
+      // Process only NEW final results since the last event (using e.resultIndex).
+      // This prevents re-processing of results when the speech recognition session
+      // auto-restarts and re-sends previously-final results.
+      var newFinalPart = '';
+      var interimPart = '';
+      var resultIndex = e.resultIndex;
+      
+      for(var i = resultIndex; i < e.results.length; i++){
         var piece = e.results[i][0].transcript;
-        if(e.results[i].isFinal) finalPart += piece + ' ';
-        else interimPart += piece;
+        if(e.results[i].isFinal){
+          if(i > lastProcessedFinalIndex){
+            newFinalPart += piece + ' ';
+            lastProcessedFinalIndex = i;
+          }
+        } else {
+          interimPart += piece;
+        }
       }
-      finalTranscript = finalPart;
-      var combined = (voiceDraftBaseline + finalPart + interimPart).replace(/\s+/g,' ').trim();
+      
+      finalTranscript += newFinalPart;
+      var combined = (voiceDraftBaseline + finalTranscript + interimPart).replace(/\s+/g,' ').trim();
       document.getElementById('voiceTranscript').value = combined;
     };
     recognition.onerror = function(e){
@@ -2016,10 +2027,6 @@
     };
     recognition.onend = function(){
       if(isRecording){
-        // Capture whatever is confirmed so far as the new baseline before the
-        // session restarts (each restart resets the browser's results array).
-        var txt = document.getElementById('voiceTranscript').value.trim();
-        voiceDraftBaseline = txt ? txt + ' ' : '';
         try{ recognition.start(); }catch(err){}
       }
     };
@@ -2030,6 +2037,7 @@
     var current = document.getElementById('voiceTranscript').value.trim();
     voiceDraftBaseline = current ? current + ' ' : '';
     finalTranscript = '';
+    lastProcessedFinalIndex = -1;
     recognition.lang = document.getElementById('voiceLang').value;
     isRecording = true;
     try{ recognition.start(); }catch(e){}
@@ -2119,8 +2127,10 @@
   }
 
   function extractNamedProduct(t){
-    var m = t.match(/prodotto\s+chiamat[oa]\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i)
-         || t.match(/product\s+(?:called|named)\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i);
+    var m = t.match(/prodotto\s+(?:chiamat[oa]|numero|num|n\.?|named?)\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i)
+         || t.match(/product\s+(?:called|named|num|number|n\.?)\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i)
+         || t.match(/prodotto\s+["']?([a-zA-Z0-9À-ÿ\-]{2,30})["']?\b/i)
+         || t.match(/product\s+["']?([a-zA-Z0-9À-ÿ\-]{2,30})["']?\b/i);
     return m ? capitalizeFirst(m[1]) : null;
   }
 
@@ -2144,6 +2154,30 @@
   function extractDateTime(t){
     var now = new Date();
     var lower = t.toLowerCase();
+
+    // Check for explicit "inizio X fine Y" or "start X end Y" pattern first
+    var explicitPattern = lower.match(/inizio\s+(\w+).*?fine\s+(\d{1,2})\s+(\w+)/) 
+                       || lower.match(/start\s+(\w+).*?end\s+(\w+)\s+(\d{1,2})/i);
+    if(explicitPattern){
+      // Parse start: "oggi", "domani", "lunedì", etc.
+      var startWord = explicitPattern[1].toLowerCase();
+      var endDay = parseInt(explicitPattern[2], 10);
+      var endMonth = MONTHS_IT[explicitPattern[3]] !== undefined ? MONTHS_IT[explicitPattern[3]] : MONTHS_EN[explicitPattern[3]];
+      
+      var start = new Date(now);
+      start.setSeconds(0,0);
+      
+      if(/oggi|today/.test(startWord)) start.setHours(9,0,0,0);
+      else if(/domani|tomorrow/.test(startWord)) { start.setDate(start.getDate()+1); start.setHours(9,0,0,0); }
+      else if(/dopodomani|day after tomorrow/.test(startWord)) { start.setDate(start.getDate()+2); start.setHours(9,0,0,0); }
+      
+      var end = new Date(now.getFullYear(), endMonth, endDay, 18, 0, 0, 0);
+      if(end.getTime() < start.getTime()) end.setFullYear(now.getFullYear()+1);
+      
+      return { start: isoLocalVoice(start), end: isoLocalVoice(end) };
+    }
+    
+    // Fallback to original logic
     var isDeadline = /\bda completare\b|\bentro\b|\bscadenza\b|\bconsegna\b|\bdeadline\b|\bdue date\b|\bdue by\b/i.test(lower);
     var timeMatch = lower.match(/\balle\s+(?:ore\s+)?(\d{1,2})(?:[:.](\d{2}))?/) || lower.match(/\bat\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/);
 
@@ -2161,9 +2195,6 @@
     var absDate = extractAbsoluteDate(t);
     if(absDate){
       if(isDeadline){
-        // Deadline-style phrasing ("da completare entro il 5 agosto"):
-        // start = now, end = the stated date (end of business day, or the
-        // explicit time if one was also given).
         var start = new Date(now);
         start.setSeconds(0,0);
         var mins = start.getMinutes();
