@@ -1980,6 +1980,8 @@
     return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
   }
 
+  var voiceDraftBaseline = '';
+
   function setupSpeechRecognition(){
     if(recognitionReady) return;
     recognitionReady = true;
@@ -1995,13 +1997,18 @@
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onresult = function(e){
-      var interim = '';
-      for(var i = e.resultIndex; i < e.results.length; i++){
+      // Rebuild the transcript from the full current results snapshot on every
+      // event (rather than incrementally appending) — some mobile browsers
+      // re-emit already-finalized results, which caused duplicated text.
+      var finalPart = '', interimPart = '';
+      for(var i = 0; i < e.results.length; i++){
         var piece = e.results[i][0].transcript;
-        if(e.results[i].isFinal) finalTranscript += piece + ' ';
-        else interim += piece;
+        if(e.results[i].isFinal) finalPart += piece + ' ';
+        else interimPart += piece;
       }
-      document.getElementById('voiceTranscript').value = (finalTranscript + interim).trim();
+      finalTranscript = finalPart;
+      var combined = (voiceDraftBaseline + finalPart + interimPart).replace(/\s+/g,' ').trim();
+      document.getElementById('voiceTranscript').value = combined;
     };
     recognition.onerror = function(e){
       document.getElementById('voiceStatus').textContent = 'Recognition error: ' + e.error;
@@ -2009,6 +2016,10 @@
     };
     recognition.onend = function(){
       if(isRecording){
+        // Capture whatever is confirmed so far as the new baseline before the
+        // session restarts (each restart resets the browser's results array).
+        var txt = document.getElementById('voiceTranscript').value.trim();
+        voiceDraftBaseline = txt ? txt + ' ' : '';
         try{ recognition.start(); }catch(err){}
       }
     };
@@ -2017,7 +2028,8 @@
   function startRecording(){
     if(!recognition) return;
     var current = document.getElementById('voiceTranscript').value.trim();
-    finalTranscript = current ? current + ' ' : '';
+    voiceDraftBaseline = current ? current + ' ' : '';
+    finalTranscript = '';
     recognition.lang = document.getElementById('voiceLang').value;
     isRecording = true;
     try{ recognition.start(); }catch(e){}
@@ -2088,11 +2100,91 @@
     matches.sort(function(a,b){ return b.length - a.length; });
     return matches[0];
   }
+
+  var MONTHS_IT = {gennaio:0, febbraio:1, marzo:2, aprile:3, maggio:4, giugno:5, luglio:6, agosto:7, settembre:8, ottobre:9, novembre:10, dicembre:11};
+  var MONTHS_EN = {january:0, february:1, march:2, april:3, may:4, june:5, july:6, august:7, september:8, october:9, november:10, december:11};
+
+  function capitalizeFirst(s){
+    if(!s) return s;
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function extractQuantity(t){
+    var m = t.match(/(\d+)\s*unit[aà]/i);
+    if(m){
+      var n = parseInt(m[1], 10);
+      if(n >= 2 && n <= 200) return n;
+    }
+    return null;
+  }
+
+  function extractNamedProduct(t){
+    var m = t.match(/prodotto\s+chiamat[oa]\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i)
+         || t.match(/product\s+(?:called|named)\s+["']?([a-zA-Z0-9À-ÿ\-]{1,30})["']?/i);
+    return m ? capitalizeFirst(m[1]) : null;
+  }
+
+  function extractAbsoluteDate(t){
+    var lower = t.toLowerCase();
+    var mIt = lower.match(/\b(\d{1,2})\s*(?:di\s+)?(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\b/);
+    var mEn = lower.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})\b/);
+    var day, month;
+    if(mIt){ day = parseInt(mIt[1],10); month = MONTHS_IT[mIt[2]]; }
+    else if(mEn){ day = parseInt(mEn[2],10); month = MONTHS_EN[mEn[1]]; }
+    else return null;
+
+    var now = new Date();
+    var d = new Date(now.getFullYear(), month, day, 9, 0, 0, 0);
+    if(d.getTime() < now.getTime() - 24*3600000){
+      d.setFullYear(now.getFullYear() + 1);
+    }
+    return d;
+  }
+
   function extractDateTime(t){
     var now = new Date();
+    var lower = t.toLowerCase();
+    var isDeadline = /\bda completare\b|\bentro\b|\bscadenza\b|\bconsegna\b|\bdeadline\b|\bdue date\b|\bdue by\b/i.test(lower);
+    var timeMatch = lower.match(/\balle\s+(?:ore\s+)?(\d{1,2})(?:[:.](\d{2}))?/) || lower.match(/\bat\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/);
+
+    function applyTime(d, match){
+      var hh = parseInt(match[1],10);
+      var mm = match[2] ? parseInt(match[2],10) : 0;
+      if(match[3]){
+        if(/pm/.test(match[3]) && hh < 12) hh += 12;
+        if(/am/.test(match[3]) && hh === 12) hh = 0;
+      }
+      d.setHours(hh, mm, 0, 0);
+      return d;
+    }
+
+    var absDate = extractAbsoluteDate(t);
+    if(absDate){
+      if(isDeadline){
+        // Deadline-style phrasing ("da completare entro il 5 agosto"):
+        // start = now, end = the stated date (end of business day, or the
+        // explicit time if one was also given).
+        var start = new Date(now);
+        start.setSeconds(0,0);
+        var mins = start.getMinutes();
+        start.setMinutes(mins + ((30 - (mins % 30)) % 30 || 30));
+        var end = new Date(absDate);
+        if(timeMatch) applyTime(end, timeMatch); else end.setHours(18,0,0,0);
+        if(end.getTime() < start.getTime()) end.setDate(end.getDate()+1);
+        return { start: isoLocalVoice(start), end: isoLocalVoice(end) };
+      } else {
+        var s = new Date(absDate);
+        if(timeMatch) applyTime(s, timeMatch);
+        var durMatch = lower.match(/(?:per\s+)?(\d+(?:[.,]\d+)?)\s*(ore|ora|h\b|hours?|hrs?)/);
+        var hrs = durMatch ? parseFloat(durMatch[1].replace(',','.')) : 1;
+        if(!hrs || hrs <= 0) hrs = 1;
+        var e = new Date(s.getTime() + hrs*3600000);
+        return { start: isoLocalVoice(s), end: isoLocalVoice(e) };
+      }
+    }
+
     var base = new Date(now);
     base.setSeconds(0,0);
-    var lower = t.toLowerCase();
     var dateWasSet = false;
 
     if(/\bdopodomani\b|\bday after tomorrow\b/.test(lower)){
@@ -2116,52 +2208,63 @@
       }
     }
 
-    var timeMatch = lower.match(/\balle\s+(?:ore\s+)?(\d{1,2})(?:[:.](\d{2}))?/) || lower.match(/\bat\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/);
     if(timeMatch){
-      var hh = parseInt(timeMatch[1],10);
-      var mm = timeMatch[2] ? parseInt(timeMatch[2],10) : 0;
-      if(timeMatch[3]){
-        if(/pm/.test(timeMatch[3]) && hh < 12) hh += 12;
-        if(/am/.test(timeMatch[3]) && hh === 12) hh = 0;
-      }
-      base.setHours(hh, mm, 0, 0);
+      applyTime(base, timeMatch);
     } else if(dateWasSet){
       base.setHours(9,0,0,0);
     } else {
-      var mins = base.getMinutes();
-      var add = (30 - (mins % 30)) % 30;
-      base.setMinutes(mins + (add || 30));
+      var mins2 = base.getMinutes();
+      base.setMinutes(mins2 + ((30 - (mins2 % 30)) % 30 || 30));
     }
 
-    var durMatch = lower.match(/(?:per\s+)?(\d+(?:[.,]\d+)?)\s*(ore|ora|h\b|hours?|hrs?)/);
-    var hours = durMatch ? parseFloat(durMatch[1].replace(',','.')) : 1;
+    var durMatch2 = lower.match(/(?:per\s+)?(\d+(?:[.,]\d+)?)\s*(ore|ora|h\b|hours?|hrs?)/);
+    var hours = durMatch2 ? parseFloat(durMatch2[1].replace(',','.')) : 1;
     if(!hours || hours <= 0) hours = 1;
 
-    var end = new Date(base.getTime() + hours*3600000);
-    return { start: isoLocalVoice(base), end: isoLocalVoice(end) };
+    var end2 = new Date(base.getTime() + hours*3600000);
+    return { start: isoLocalVoice(base), end: isoLocalVoice(end2) };
   }
 
   function parseTranscriptToDrafts(text, prods){
     var chunks = splitIntoChunks(text);
-    return chunks.map(function(chunk){
+    var results = [];
+    chunks.forEach(function(chunk){
       var priority = extractPriority(chunk);
       var type = extractType(chunk);
       var rd = extractRd(chunk);
       var ecr = extractEcr(chunk);
       var ocn = extractOcn(chunk);
-      var product = extractProduct(chunk, prods);
+      var namedProduct = extractNamedProduct(chunk);
+      var product = namedProduct || extractProduct(chunk, prods);
       var dt = extractDateTime(chunk);
-      var title = chunk.length > 110 ? chunk.slice(0,110)+'…' : chunk;
-      title = title.charAt(0).toUpperCase() + title.slice(1);
-      return {
-        title: title, desc: '', product: product, priority: priority,
-        start: dt.start, end: dt.end, type: type, rd: rd,
-        ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
-        ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
-        notes: 'Drafted from voice capture — please verify before relying on this record.',
-        done: false
-      };
+      var quantity = extractQuantity(chunk);
+      var baseTitle = chunk.length > 110 ? chunk.slice(0,110)+'…' : chunk;
+      baseTitle = capitalizeFirst(baseTitle);
+
+      if(quantity){
+        for(var i = 1; i <= quantity; i++){
+          results.push({
+            title: product + ' — production unit ' + i + ' of ' + quantity,
+            desc: baseTitle, product: product, priority: priority,
+            start: dt.start, end: dt.end, type: type, rd: rd,
+            ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
+            ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
+            notes: 'Drafted from voice capture — unit ' + i + ' of ' + quantity + '. Please verify before relying on this record.',
+            done: false
+          });
+        }
+      } else {
+        results.push({
+          title: baseTitle, desc: '', product: product, priority: priority,
+          start: dt.start, end: dt.end, type: type, rd: rd,
+          ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
+          ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
+          notes: 'Drafted from voice capture — please verify before relying on this record.',
+          done: false
+        });
+      }
     });
+    return results;
   }
 
   document.getElementById('btnVoiceParse').addEventListener('click', function(){
@@ -2179,8 +2282,11 @@
     var typeOpts = ['NPI','Support','Other'].map(function(ty){
       return '<option value="'+ty+'" '+(d.type===ty?'selected':'')+'>'+(ty==='Support'?'Cross-Team Support':ty)+'</option>';
     }).join('');
-    var productOpts = products.map(function(p){
-      return '<option value="'+escapeHtml(p)+'" '+(d.product===p?'selected':'')+'>'+escapeHtml(p)+'</option>';
+    var productChoices = products.slice();
+    if(d.product && productChoices.indexOf(d.product) === -1) productChoices.unshift(d.product);
+    var productOpts = productChoices.map(function(p){
+      var isNew = products.indexOf(p) === -1;
+      return '<option value="'+escapeHtml(p)+'" '+(d.product===p?'selected':'')+'>'+escapeHtml(p)+(isNew?' (new)':'')+'</option>';
     }).join('');
     return '<div class="voice-draft" data-idx="'+idx+'">'+
       '<div class="vd-head">'+
@@ -2246,6 +2352,19 @@
 
   document.getElementById('btnVoiceCommit').addEventListener('click', function(){
     if(voiceDrafts.length === 0) return;
+
+    var newProducts = [];
+    voiceDrafts.forEach(function(d){
+      if(d.product && products.indexOf(d.product) === -1 && newProducts.indexOf(d.product) === -1){
+        newProducts.push(d.product);
+      }
+    });
+    if(newProducts.length > 0){
+      products = products.concat(newProducts);
+      saveProducts(products);
+      renderProductOptions();
+    }
+
     voiceDrafts.forEach(function(d){
       tasks.push({
         id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
