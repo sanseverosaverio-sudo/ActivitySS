@@ -51,9 +51,21 @@ Consigliato: esportare un backup periodicamente, specialmente prima di svuotare 
 
 ## Struttura dell'app (tab)
 
-1. **Activity List** — form di inserimento (titolo, descrizione, prodotto, priorità, date inizio/fine, tipo attività NPI/Support/Altro, ECR/OCN con numero, note, supporto R&D, stato completata) + elenco filtrabile.
+1. **Activity List** — form di inserimento (titolo, descrizione, prodotto, priorità, date inizio/fine, tipo attività NPI/Support/Altro, ECR/OCN con numero, note, supporto R&D, stato completata) + elenco filtrabile. Include il pulsante **🎤 Voice Capture** (vedi sotto).
 2. **Dashboard** — KPI, grafici a torta/barre su tempo per prodotto, tipo attività e priorità, tabelle di dettaglio con percentuali. Filtro per intervallo di date.
 3. **Progress Report** — selezione libera di attività (per qualsiasi criterio: prodotto, stato, ecc.) → report esecutivo con riquadri *Completed / WIP / Next Steps*, Gantt generale sulla timeline delle attività selezionate, grafici con valori/percentuali, e pulsante **Print / Export PDF** (richiede un browser reale — non l'anteprima file in-app — per aprire il dialogo di stampa/esportazione PDF).
+
+## Voice Capture (100% locale)
+
+Dal tab **Activity List**, il pulsante **🎤 Voice Capture** apre una finestra che permette di:
+
+1. Registrare un messaggio vocale (usa il riconoscimento vocale integrato del browser — funziona su Chrome/Edge; su browser non supportati si può scrivere il testo direttamente).
+2. Analizzare il testo con un **parser locale a regole**: separa automaticamente più attività dette in sequenza e prova a riconoscere prodotto, priorità, date/orari, durata, tipo attività, riferimenti ECR/OCN e necessità di supporto R&D dalle parole chiave usate.
+3. Rivedere e correggere ogni bozza generata (tutti i campi sono modificabili) prima di confermare l'aggiunta al registro.
+
+**Importante:** né l'audio né il testo trascritto vengono mai inviati a server esterni — tutta l'elaborazione avviene nel browser. Il parser è a regole (keyword-based), quindi può sbagliare con frasi complesse o ambigue: per questo motivo le attività vengono sempre proposte come bozze da confermare, mai salvate automaticamente.
+
+Parole chiave riconosciute (esempi): `alta/media/bassa priorità`, `urgente`, `NPI`, `supporto team`, `R&D`, `ECR 1234`, `OCN 5678`, `oggi/domani/dopodomani`, giorni della settimana, `alle 9`/`alle 14:30`, `per 2 ore`.
 
 ## Compatibilità
 

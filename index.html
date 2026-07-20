@@ -805,6 +805,150 @@
   ::-webkit-scrollbar{width:10px;height:10px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
   ::-webkit-scrollbar-thumb{background:var(--line); border-radius:5px;}
+
+  /* ---------- voice capture ---------- */
+  .voice-modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(6,9,13,.72);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    z-index:100;
+    padding:24px 16px;
+    overflow-y:auto;
+  }
+  .voice-modal-overlay.show{display:flex;}
+  .voice-modal{
+    background:var(--panel);
+    border:1px solid var(--line);
+    max-width:640px;
+    width:100%;
+    margin-bottom:40px;
+  }
+  .voice-modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .voice-modal-head h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:15px;
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+  }
+  .voice-modal-body{padding:18px;}
+  .voice-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    line-height:1.6;
+    color:var(--teal);
+    border:1px solid var(--teal-dim);
+    background:rgba(67,198,172,.08);
+    padding:10px 12px;
+    margin-bottom:16px;
+    border-radius:var(--radius);
+  }
+  .voice-controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+  }
+  .voice-controls select{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    padding:8px 9px;
+    border-radius:var(--radius);
+  }
+  #btnVoiceRecord.recording{
+    background:var(--high);
+    border-color:var(--high);
+    color:#fff;
+  }
+  .voice-status{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--muted);
+  }
+  #voiceTranscript{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:10px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    border-radius:var(--radius);
+    resize:vertical;
+    margin-bottom:12px;
+    outline:none;
+  }
+  #voiceTranscript:focus{border-color:var(--accent);}
+  .voice-draft{
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    padding:12px;
+    margin-top:12px;
+    background:var(--panel-2);
+  }
+  .vd-head{display:flex; gap:8px; margin-bottom:8px;}
+  .vd-head .vd-title{flex:1;}
+  .vd-remove{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    width:30px;
+    height:30px;
+    flex-shrink:0;
+    cursor:pointer;
+    border-radius:var(--radius);
+    font-size:13px;
+  }
+  .vd-remove:hover{border-color:var(--high); color:var(--high);}
+  .vd-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;}
+  .vd-row.vd-row-2{grid-template-columns:1fr 1fr;}
+  .vd-input{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:7px 8px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  .vd-input:focus{border-color:var(--accent);}
+  .vd-flags{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:8px;}
+  .vd-flag{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    color:var(--text);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .vd-flag input{accent-color:var(--accent); width:14px; height:14px;}
+  .vd-num{max-width:110px;}
+  .vd-notes{min-height:44px; resize:vertical;}
+
+  @media (max-width: 640px){
+    .voice-modal-overlay{padding:0;}
+    .voice-modal{margin-bottom:0; min-height:100vh;}
+    .vd-row{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -838,7 +982,10 @@
       <div class="panel">
         <div class="panel-head">
           <h2>New Activity</h2>
-          <span class="tag" id="formModeTag">NEW</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn btn-small" id="btnVoiceCapture">🎤 Voice Capture</button>
+            <span class="tag" id="formModeTag">NEW</span>
+          </div>
         </div>
         <div class="panel-body">
           <form id="taskForm">
@@ -1068,6 +1215,37 @@
     <input type="file" id="fileImport" accept="application/json" style="display:none;">
   </div>
 </footer>
+
+<div class="voice-modal-overlay" id="voiceModal">
+  <div class="voice-modal">
+    <div class="voice-modal-head">
+      <h2>Voice Capture — Local Only</h2>
+      <button type="button" class="btn btn-small btn-ghost" id="btnVoiceClose">Close</button>
+    </div>
+    <div class="voice-modal-body">
+      <div class="voice-note">100% local: your voice and the transcript never leave this browser. No external service is called — activities are extracted by a simple on-device keyword parser, so please review the drafts below before adding them.</div>
+
+      <div class="voice-controls">
+        <select id="voiceLang">
+          <option value="it-IT">Italiano</option>
+          <option value="en-US">English</option>
+        </select>
+        <button type="button" class="btn" id="btnVoiceRecord">● Start Recording</button>
+        <span class="voice-status" id="voiceStatus"></span>
+      </div>
+
+      <textarea id="voiceTranscript" rows="4" placeholder="The transcript will appear here as you speak. You can also type or edit it directly — useful if your browser doesn't support voice recognition, or to fix misheard words before analyzing."></textarea>
+
+      <button type="button" class="btn btn-primary" id="btnVoiceParse">Analyze &amp; Draft Activities</button>
+
+      <div id="voiceDrafts"></div>
+
+      <div id="voiceCommitRow" style="display:none; margin-top:14px;">
+        <button type="button" class="btn btn-primary" id="btnVoiceCommit">Add Activities to Register</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -1784,6 +1962,320 @@
       e.target.value = '';
     };
     reader.readAsText(file);
+  });
+
+  // ================= VOICE CAPTURE (100% local) =================
+  // Speech-to-text uses the browser's built-in recognition engine (if available).
+  // Transcript parsing below is a local, rule-based keyword parser — no data
+  // ever leaves the browser and no external service is called.
+
+  var voiceDrafts = [];
+  var recognition = null;
+  var isRecording = false;
+  var finalTranscript = '';
+  var recognitionReady = false;
+
+  function isoLocalVoice(d){
+    var pad = function(n){return n<10?'0'+n:n;};
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  function setupSpeechRecognition(){
+    if(recognitionReady) return;
+    recognitionReady = true;
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recBtn = document.getElementById('btnVoiceRecord');
+    if(!SR){
+      recBtn.disabled = true;
+      recBtn.style.opacity = '0.5';
+      document.getElementById('voiceStatus').textContent = 'Voice recognition not supported in this browser — type the transcript below instead.';
+      return;
+    }
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = function(e){
+      var interim = '';
+      for(var i = e.resultIndex; i < e.results.length; i++){
+        var piece = e.results[i][0].transcript;
+        if(e.results[i].isFinal) finalTranscript += piece + ' ';
+        else interim += piece;
+      }
+      document.getElementById('voiceTranscript').value = (finalTranscript + interim).trim();
+    };
+    recognition.onerror = function(e){
+      document.getElementById('voiceStatus').textContent = 'Recognition error: ' + e.error;
+      stopRecording();
+    };
+    recognition.onend = function(){
+      if(isRecording){
+        try{ recognition.start(); }catch(err){}
+      }
+    };
+  }
+
+  function startRecording(){
+    if(!recognition) return;
+    var current = document.getElementById('voiceTranscript').value.trim();
+    finalTranscript = current ? current + ' ' : '';
+    recognition.lang = document.getElementById('voiceLang').value;
+    isRecording = true;
+    try{ recognition.start(); }catch(e){}
+    var btn = document.getElementById('btnVoiceRecord');
+    btn.textContent = '■ Stop Recording';
+    btn.classList.add('recording');
+    document.getElementById('voiceStatus').textContent = 'Listening…';
+  }
+  function stopRecording(){
+    isRecording = false;
+    if(recognition){ try{ recognition.stop(); }catch(e){} }
+    var btn = document.getElementById('btnVoiceRecord');
+    btn.textContent = '● Start Recording';
+    btn.classList.remove('recording');
+    document.getElementById('voiceStatus').textContent = '';
+  }
+
+  document.getElementById('btnVoiceRecord').addEventListener('click', function(){
+    if(isRecording) stopRecording(); else startRecording();
+  });
+
+  document.getElementById('btnVoiceCapture').addEventListener('click', function(){
+    document.getElementById('voiceModal').classList.add('show');
+    setupSpeechRecognition();
+  });
+  document.getElementById('btnVoiceClose').addEventListener('click', function(){
+    if(isRecording) stopRecording();
+    document.getElementById('voiceModal').classList.remove('show');
+  });
+
+  // ---------- local rule-based transcript parser ----------
+  var WEEKDAYS_IT = {'domenica':0,'lunedi':1,'lunedì':1,'martedi':2,'martedì':2,'mercoledi':3,'mercoledì':3,'giovedi':4,'giovedì':4,'venerdi':5,'venerdì':5,'sabato':6};
+  var WEEKDAYS_EN = {'sunday':0,'monday':1,'tuesday':2,'wednesday':3,'thursday':4,'friday':5,'saturday':6};
+
+  function splitIntoChunks(text){
+    var t = text.replace(/\s+/g,' ').trim();
+    if(!t) return [];
+    var parts = t.split(/\n+|;+|(?:\.\s+)(?=[A-ZÀ-Ý])|\b(?:poi|inoltre|successivamente|quindi|dopodiche|and then|then)\b/gi);
+    return parts.map(function(p){ return p.replace(/^[\s,.\-]+|[\s,.\-]+$/g,''); }).filter(function(p){ return p.length > 4; });
+  }
+
+  function extractPriority(t){
+    if(/alta priorit|priorit[aà]\s*alta|urgent[ei]?|high priority/i.test(t)) return 'High';
+    if(/bassa priorit|priorit[aà]\s*bassa|low priority|non urgente/i.test(t)) return 'Low';
+    return 'Medium';
+  }
+  function extractType(t){
+    if(/\bnpi\b/i.test(t)) return 'NPI';
+    if(/supporto( ad| al| ai)? (altri )?team|cross.?team support|support team|supporto operativo/i.test(t)) return 'Support';
+    return 'Other';
+  }
+  function extractRd(t){ return /\br\s?&\s?d\b|ricerca e sviluppo/i.test(t); }
+  function extractEcr(t){
+    var m = t.match(/ecr[\s\-]?(\d{2,6})/i);
+    return m ? { enabled:true, number:'ECR-'+m[1] } : { enabled:false, number:'' };
+  }
+  function extractOcn(t){
+    var m = t.match(/ocn[\s\-]?(\d{2,6})/i);
+    return m ? { enabled:true, number:'OCN-'+m[1] } : { enabled:false, number:'' };
+  }
+  function extractProduct(t, prods){
+    var matches = prods.filter(function(p){
+      var escaped = p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var pattern = new RegExp('\\b' + escaped + '\\b', 'i');
+      return pattern.test(t);
+    });
+    if(matches.length === 0) return prods[0] || '';
+    matches.sort(function(a,b){ return b.length - a.length; });
+    return matches[0];
+  }
+  function extractDateTime(t){
+    var now = new Date();
+    var base = new Date(now);
+    base.setSeconds(0,0);
+    var lower = t.toLowerCase();
+    var dateWasSet = false;
+
+    if(/\bdopodomani\b|\bday after tomorrow\b/.test(lower)){
+      base.setDate(base.getDate()+2); dateWasSet = true;
+    } else if(/\bdomani\b|\btomorrow\b/.test(lower)){
+      base.setDate(base.getDate()+1); dateWasSet = true;
+    } else if(/\boggi\b|\btoday\b/.test(lower)){
+      dateWasSet = true;
+    } else {
+      var wdKeys = Object.keys(WEEKDAYS_IT).concat(Object.keys(WEEKDAYS_EN));
+      for(var i=0;i<wdKeys.length;i++){
+        var key = wdKeys[i];
+        if(lower.indexOf(key) !== -1){
+          var targetDow = WEEKDAYS_IT[key] !== undefined ? WEEKDAYS_IT[key] : WEEKDAYS_EN[key];
+          var diff = (targetDow - base.getDay() + 7) % 7;
+          if(diff === 0) diff = 7;
+          base.setDate(base.getDate() + diff);
+          dateWasSet = true;
+          break;
+        }
+      }
+    }
+
+    var timeMatch = lower.match(/\balle\s+(?:ore\s+)?(\d{1,2})(?:[:.](\d{2}))?/) || lower.match(/\bat\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/);
+    if(timeMatch){
+      var hh = parseInt(timeMatch[1],10);
+      var mm = timeMatch[2] ? parseInt(timeMatch[2],10) : 0;
+      if(timeMatch[3]){
+        if(/pm/.test(timeMatch[3]) && hh < 12) hh += 12;
+        if(/am/.test(timeMatch[3]) && hh === 12) hh = 0;
+      }
+      base.setHours(hh, mm, 0, 0);
+    } else if(dateWasSet){
+      base.setHours(9,0,0,0);
+    } else {
+      var mins = base.getMinutes();
+      var add = (30 - (mins % 30)) % 30;
+      base.setMinutes(mins + (add || 30));
+    }
+
+    var durMatch = lower.match(/(?:per\s+)?(\d+(?:[.,]\d+)?)\s*(ore|ora|h\b|hours?|hrs?)/);
+    var hours = durMatch ? parseFloat(durMatch[1].replace(',','.')) : 1;
+    if(!hours || hours <= 0) hours = 1;
+
+    var end = new Date(base.getTime() + hours*3600000);
+    return { start: isoLocalVoice(base), end: isoLocalVoice(end) };
+  }
+
+  function parseTranscriptToDrafts(text, prods){
+    var chunks = splitIntoChunks(text);
+    return chunks.map(function(chunk){
+      var priority = extractPriority(chunk);
+      var type = extractType(chunk);
+      var rd = extractRd(chunk);
+      var ecr = extractEcr(chunk);
+      var ocn = extractOcn(chunk);
+      var product = extractProduct(chunk, prods);
+      var dt = extractDateTime(chunk);
+      var title = chunk.length > 110 ? chunk.slice(0,110)+'…' : chunk;
+      title = title.charAt(0).toUpperCase() + title.slice(1);
+      return {
+        title: title, desc: '', product: product, priority: priority,
+        start: dt.start, end: dt.end, type: type, rd: rd,
+        ecrEnabled: ecr.enabled, ecrNumber: ecr.number,
+        ocnEnabled: ocn.enabled, ocnNumber: ocn.number,
+        notes: 'Drafted from voice capture — please verify before relying on this record.',
+        done: false
+      };
+    });
+  }
+
+  document.getElementById('btnVoiceParse').addEventListener('click', function(){
+    var text = document.getElementById('voiceTranscript').value.trim();
+    if(!text){ alert('Record or type an activity description first.'); return; }
+    if(isRecording) stopRecording();
+    voiceDrafts = parseTranscriptToDrafts(text, products);
+    renderVoiceDrafts();
+  });
+
+  function draftCardHTML(d, idx){
+    var priorityOpts = ['High','Medium','Low'].map(function(p){
+      return '<option value="'+p+'" '+(d.priority===p?'selected':'')+'>'+p+'</option>';
+    }).join('');
+    var typeOpts = ['NPI','Support','Other'].map(function(ty){
+      return '<option value="'+ty+'" '+(d.type===ty?'selected':'')+'>'+(ty==='Support'?'Cross-Team Support':ty)+'</option>';
+    }).join('');
+    var productOpts = products.map(function(p){
+      return '<option value="'+escapeHtml(p)+'" '+(d.product===p?'selected':'')+'>'+escapeHtml(p)+'</option>';
+    }).join('');
+    return '<div class="voice-draft" data-idx="'+idx+'">'+
+      '<div class="vd-head">'+
+        '<input type="text" class="vd-input vd-title" data-field="title" value="'+escapeHtml(d.title)+'">'+
+        '<button type="button" class="vd-remove" data-idx="'+idx+'" title="Remove">✕</button>'+
+      '</div>'+
+      '<div class="vd-row">'+
+        '<select class="vd-input" data-field="product">'+productOpts+'</select>'+
+        '<select class="vd-input" data-field="priority">'+priorityOpts+'</select>'+
+        '<select class="vd-input" data-field="type">'+typeOpts+'</select>'+
+      '</div>'+
+      '<div class="vd-row vd-row-2">'+
+        '<input type="datetime-local" class="vd-input" data-field="start" value="'+d.start+'">'+
+        '<input type="datetime-local" class="vd-input" data-field="end" value="'+d.end+'">'+
+      '</div>'+
+      '<div class="vd-flags">'+
+        '<label class="vd-flag"><input type="checkbox" data-field="rd" '+(d.rd?'checked':'')+'> R&amp;D</label>'+
+        '<label class="vd-flag"><input type="checkbox" data-field="ecrEnabled" '+(d.ecrEnabled?'checked':'')+'> ECR</label>'+
+        '<input type="text" class="vd-input vd-num" data-field="ecrNumber" placeholder="ECR #" value="'+escapeHtml(d.ecrNumber)+'" style="display:'+(d.ecrEnabled?'inline-block':'none')+';">'+
+        '<label class="vd-flag"><input type="checkbox" data-field="ocnEnabled" '+(d.ocnEnabled?'checked':'')+'> OCN</label>'+
+        '<input type="text" class="vd-input vd-num" data-field="ocnNumber" placeholder="OCN #" value="'+escapeHtml(d.ocnNumber)+'" style="display:'+(d.ocnEnabled?'inline-block':'none')+';">'+
+      '</div>'+
+      '<textarea class="vd-input vd-notes" data-field="notes">'+escapeHtml(d.notes)+'</textarea>'+
+    '</div>';
+  }
+
+  function renderVoiceDrafts(){
+    var el = document.getElementById('voiceDrafts');
+    var commitRow = document.getElementById('voiceCommitRow');
+    if(voiceDrafts.length === 0){
+      el.innerHTML = '';
+      commitRow.style.display = 'none';
+      return;
+    }
+    el.innerHTML = voiceDrafts.map(function(d, idx){ return draftCardHTML(d, idx); }).join('');
+    commitRow.style.display = 'block';
+    document.getElementById('btnVoiceCommit').textContent = 'Add ' + voiceDrafts.length + ' Activit' + (voiceDrafts.length===1?'y':'ies') + ' to Register';
+  }
+
+  function voiceDraftFieldHandler(e){
+    var card = e.target.closest('.voice-draft');
+    if(!card) return;
+    var idx = parseInt(card.dataset.idx, 10);
+    var field = e.target.dataset.field;
+    if(!field || !voiceDrafts[idx]) return;
+    var val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    voiceDrafts[idx][field] = val;
+    if(field === 'ecrEnabled' || field === 'ocnEnabled'){
+      var numField = field === 'ecrEnabled' ? 'ecrNumber' : 'ocnNumber';
+      var numInput = card.querySelector('[data-field="'+numField+'"]');
+      if(numInput) numInput.style.display = val ? 'inline-block' : 'none';
+    }
+  }
+  document.getElementById('voiceDrafts').addEventListener('input', voiceDraftFieldHandler);
+  document.getElementById('voiceDrafts').addEventListener('change', voiceDraftFieldHandler);
+  document.getElementById('voiceDrafts').addEventListener('click', function(e){
+    if(e.target.classList.contains('vd-remove')){
+      var idx = parseInt(e.target.dataset.idx, 10);
+      voiceDrafts.splice(idx, 1);
+      renderVoiceDrafts();
+    }
+  });
+
+  document.getElementById('btnVoiceCommit').addEventListener('click', function(){
+    if(voiceDrafts.length === 0) return;
+    voiceDrafts.forEach(function(d){
+      tasks.push({
+        id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        title: d.title || 'Untitled activity',
+        desc: d.desc || '',
+        product: d.product,
+        priority: d.priority,
+        start: d.start,
+        end: d.end,
+        type: d.type,
+        rd: !!d.rd,
+        ecrEnabled: !!d.ecrEnabled,
+        ecrNumber: d.ecrNumber || '',
+        ocnEnabled: !!d.ocnEnabled,
+        ocnNumber: d.ocnNumber || '',
+        notes: d.notes || '',
+        done: false
+      });
+    });
+    saveTasks(tasks);
+    renderList();
+    renderDashboard();
+    renderSelectList();
+    var count = voiceDrafts.length;
+    voiceDrafts = [];
+    document.getElementById('voiceTranscript').value = '';
+    finalTranscript = '';
+    renderVoiceDrafts();
+    document.getElementById('voiceModal').classList.remove('show');
+    alert(count + ' activit' + (count===1?'y':'ies') + ' added. Review them in the Activity List tab.');
   });
 
   window.EngOps = { edit: editTask, remove: deleteTask };
