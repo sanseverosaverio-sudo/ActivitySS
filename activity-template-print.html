@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Activity Log — Print Template</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  *{ box-sizing:border-box; }
+  body{
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    color:#111;
+    margin:0;
+    padding:16px;
+  }
+  .screen-only{ }
+  @media print{
+    .screen-only{ display:none !important; }
+    body{ padding:0; }
+  }
+  .toolbar{
+    max-width:1100px;
+    margin:0 auto 16px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'Courier New', monospace;
+  }
+  .toolbar button{
+    background:#111; color:#fff; border:none; padding:10px 16px;
+    font-family:'Courier New', monospace; font-size:13px; cursor:pointer; border-radius:2px;
+  }
+  .note-box{
+    max-width:1100px; margin:0 auto 14px;
+    border:1px solid #999; padding:8px 12px; font-size:11px; line-height:1.5;
+    background:#f7f7f7;
+  }
+  .sheet{
+    max-width:1100px;
+    margin:0 auto;
+    border:2px solid #000;
+  }
+  .sheet-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:2px solid #000;
+    padding:10px 14px 8px;
+  }
+  .sheet-head h1{
+    font-size:18px; margin:0 0 2px; letter-spacing:0.5px;
+  }
+  .sheet-head .sub{ font-size:10px; color:#444; }
+  .sheet-head .datefield{
+    font-size:11px; text-align:right;
+  }
+  .sheet-head .datefield .line{
+    display:inline-block; border-bottom:1px solid #000; min-width:120px; height:14px;
+  }
+
+  /* Corner alignment markers — used by the Photo Import tool to help you
+     line up the 4 corners of the table when correcting the photo perspective. */
+  .corner-marker{
+    position:absolute; width:10mm; height:10mm; background:#000;
+  }
+  .table-wrap{ position:relative; }
+  .cm-tl{ top:-1px; left:-1px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .cm-tr{ top:-1px; right:-1px; clip-path: polygon(100% 0, 100% 100%, 0 0); }
+  .cm-bl{ bottom:-1px; left:-1px; clip-path: polygon(0 100%, 100% 100%, 0 0); }
+  .cm-br{ bottom:-1px; right:-1px; clip-path: polygon(100% 100%, 0 100%, 100% 0); }
+
+  table.log{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+  }
+  table.log th{
+    font-size:9px; text-transform:uppercase; letter-spacing:0.3px;
+    border:1px solid #000; padding:4px 3px; background:#eee;
+    text-align:left; vertical-align:bottom;
+  }
+  table.log td{
+    border:1px solid #000; padding:3px; height:15mm; vertical-align:top;
+    font-size:10px;
+  }
+  table.log tr:first-child td{ height:15mm; }
+
+  /* fixed column widths as % — mirrored exactly in photo-import.html for grid slicing */
+  .col-n{ width:3%; }
+  .col-product{ width:11%; }
+  .col-desc{ width:19%; }
+  .col-start{ width:10%; }
+  .col-end{ width:10%; }
+  .col-priority{ width:10%; }
+  .col-type{ width:10%; }
+  .col-rd{ width:9%; }
+  .col-ecr{ width:6%; }
+  .col-ocn{ width:6%; }
+  .col-notes{ width:6%; }
+
+  .chk{
+    display:inline-block; width:8px; height:8px; border:1.3px solid #000;
+    margin-right:3px; vertical-align:middle;
+  }
+  .opt-line{ display:block; white-space:nowrap; line-height:1.55; }
+  .rd-hrs-line{
+    display:block; margin-top:3px; white-space:nowrap;
+  }
+  .rd-hrs-line .fill{
+    display:inline-block; border-bottom:1px solid #000; width:16px; height:10px;
+  }
+  .num-n{ text-align:center; font-weight:bold; color:#555; }
+
+  .legend{
+    max-width:1100px; margin:10px auto 0; font-size:9px; color:#555;
+    display:flex; gap:18px; flex-wrap:wrap;
+  }
+</style>
+</head>
+<body>
+
+  <div class="toolbar screen-only">
+    <div>🖨️ <b>Activity Log</b> — print template (A4 landscape)</div>
+    <button onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="note-box screen-only">
+    <b>Tips for best results with the Photo Import tool:</b>
+    Write in CAPITAL block letters, one character per space where possible. Mark checkboxes (☐) with a clear X or full fill.
+    Keep writing inside the cell borders. Use a dark pen (black or blue) on white paper, and photograph in good, even light with the full table visible.
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-head">
+      <div>
+        <h1>Activity Log — Quick Capture Sheet</h1>
+        <div class="sub">Engineering Ops · fill by hand, then scan with Photo Import to add these to the Activity Register</div>
+      </div>
+      <div class="datefield">
+        Week of: <span class="line"></span><br><br>
+        Page <span class="line" style="min-width:40px;"></span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="corner-marker cm-tl"></div>
+      <div class="corner-marker cm-tr"></div>
+      <div class="corner-marker cm-bl"></div>
+      <div class="corner-marker cm-br"></div>
+
+      <table class="log">
+        <thead>
+          <tr>
+            <th class="col-n">#</th>
+            <th class="col-product">Product</th>
+            <th class="col-desc">Description</th>
+            <th class="col-start">Start<br>(DD/MM HH:MM)</th>
+            <th class="col-end">End<br>(DD/MM HH:MM)</th>
+            <th class="col-priority">Priority</th>
+            <th class="col-type">Type</th>
+            <th class="col-rd">R&amp;D support</th>
+            <th class="col-ecr">ECR #</th>
+            <th class="col-ocn">OCN #</th>
+            <th class="col-notes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="legend screen-only">
+    <span>☐ = mark with X or fill in solid</span>
+    <span>Priority: H = High · M = Medium · L = Low</span>
+    <span>Type: N = NPI · S = Cross-Team Support · O = Other</span>
+  </div>
+
+<script>
+  var ROWS = 12;
+  var rowHTML = function(n){
+    return '<tr>'+
+      '<td class="num-n">'+n+'</td>'+
+      '<td class="col-product"></td>'+
+      '<td class="col-desc"></td>'+
+      '<td class="col-start"></td>'+
+      '<td class="col-end"></td>'+
+      '<td class="col-priority">'+
+        '<span class="opt-line"><span class="chk"></span>H &nbsp; <span class="chk"></span>M &nbsp; <span class="chk"></span>L</span>'+
+      '</td>'+
+      '<td class="col-type">'+
+        '<span class="opt-line"><span class="chk"></span>N &nbsp; <span class="chk"></span>S &nbsp; <span class="chk"></span>O</span>'+
+      '</td>'+
+      '<td class="col-rd">'+
+        '<span class="opt-line"><span class="chk"></span>Yes</span>'+
+        '<span class="rd-hrs-line">hrs: <span class="fill"></span><span class="fill"></span></span>'+
+      '</td>'+
+      '<td class="col-ecr"></td>'+
+      '<td class="col-ocn"></td>'+
+      '<td class="col-notes"></td>'+
+    '</tr>';
+  };
+  var html = '';
+  for(var i=1;i<=ROWS;i++){ html += rowHTML(i); }
+  document.getElementById('rows').innerHTML = html;
+</script>
+
+</body>
+</html>

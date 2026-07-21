@@ -944,6 +944,156 @@
   .vd-num{max-width:110px;}
   .vd-notes{min-height:44px; resize:vertical;}
 
+  /* ---------- New Products / NPI tracker ---------- */
+  .npi-product-card{
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    padding:14px;
+    margin-bottom:12px;
+  }
+  .npi-product-card .npi-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:14px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .npi-milestones{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+  }
+  @media (max-width:760px){ .npi-milestones{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:480px){ .npi-milestones{ grid-template-columns:1fr; } }
+  .npi-milestone{
+    border:1px solid var(--line-soft);
+    background:var(--panel);
+    padding:9px 10px;
+  }
+  .npi-milestone label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    display:block;
+    margin-bottom:5px;
+    letter-spacing:.02em;
+  }
+  .npi-milestone select{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:6px 7px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11.5px;
+    border-radius:var(--radius);
+  }
+  .npi-progress-track{
+    height:6px; background:var(--line-soft); border-radius:3px; overflow:hidden; margin-top:6px;
+  }
+  .npi-progress-fill{ height:100%; background:var(--teal); }
+  .npi-progress-text{
+    font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--muted); margin-top:4px;
+  }
+  .npi-badge{
+    display:inline-block; padding:2px 7px; font-family:'IBM Plex Mono', monospace;
+    font-size:9px; text-transform:uppercase; border-radius:2px; letter-spacing:.02em;
+  }
+  .npi-badge.status-none{ background:var(--panel); color:var(--muted-2); border:1px solid var(--line); }
+  .npi-badge.status-progress{ background:rgba(255,139,61,.15); color:var(--accent); border:1px solid var(--accent-dim); }
+  .npi-badge.status-done{ background:rgba(67,198,172,.15); color:var(--teal); border:1px solid var(--teal-dim); }
+  .npi-badge.status-fail{ background:rgba(226,87,76,.15); color:var(--high); border:1px solid #6b2a24; }
+
+  .component-card{
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    margin-bottom:14px;
+  }
+  .component-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 14px; border-bottom:1px solid var(--line);
+  }
+  .component-head h3{ font-family:'Space Grotesk', sans-serif; font-size:14px; margin:0; }
+  .component-head .comp-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+  .component-body{ padding:14px; }
+  .component-notes{ font-size:12px; color:var(--muted); margin-bottom:12px; font-style:italic; }
+
+  .supplier-card{
+    border:1px solid var(--line-soft);
+    background:var(--panel);
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .supplier-head{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
+  }
+  .supplier-head input{
+    background:transparent; border:none; border-bottom:1px solid var(--line);
+    color:var(--text); font-family:'Space Grotesk', sans-serif; font-size:13px;
+    padding:2px 0; flex:1; margin-right:8px;
+  }
+  .supplier-status-row{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;
+  }
+  @media (max-width:640px){ .supplier-status-row{ grid-template-columns:1fr 1fr; } }
+  .supplier-status-row .ss-field label{
+    font-family:'IBM Plex Mono', monospace; font-size:9px; text-transform:uppercase;
+    color:var(--muted); display:block; margin-bottom:4px;
+  }
+  .supplier-status-row select{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:6px 7px; font-size:11px; font-family:'IBM Plex Sans', sans-serif; border-radius:var(--radius);
+  }
+  .file-zone{
+    border-top:1px dashed var(--line); padding-top:10px; margin-top:4px;
+  }
+  .file-cat-row{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .file-cat-row select{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:6px 7px; font-size:11px; font-family:'IBM Plex Sans', sans-serif; border-radius:var(--radius);
+  }
+  .file-cat-row input[type=file]{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); max-width:180px;
+  }
+  .file-chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
+  .file-chip{
+    display:flex; align-items:center; gap:6px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius);
+    padding:4px 8px; font-family:'IBM Plex Mono', monospace; font-size:10px;
+  }
+  .file-chip .fc-cat{ color:var(--accent); text-transform:uppercase; font-size:8.5px; }
+  .file-chip button{
+    background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; padding:0 0 0 4px;
+  }
+  .file-chip button:hover{ color:var(--high); }
+  .file-chip a{ color:var(--text); text-decoration:none; }
+  .file-chip a:hover{ color:var(--teal); }
+  .comp-btn-row{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+
+  .sup-section{
+    border:1px solid var(--line-soft);
+    background:var(--panel);
+    margin-bottom:10px;
+    border-radius:var(--radius);
+  }
+  .sup-section summary{
+    padding:8px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    color:var(--accent);
+    cursor:pointer;
+    user-select:none;
+  }
+  .sup-section summary:hover{ color:var(--text); }
+  .sup-section-body{ padding:0 10px 10px; }
+  .sup-section .supplier-status-row:first-of-type{ margin-top:2px; }
+
   @media (max-width: 640px){
     .voice-modal-overlay{padding:0;}
     .voice-modal{margin-bottom:0; min-height:100vh;}
@@ -972,6 +1122,7 @@
   <div class="tab active" data-view="elenco"><span class="idx">01</span> Activity List</div>
   <div class="tab" data-view="dashboard"><span class="idx">02</span> Dashboard</div>
   <div class="tab" data-view="report"><span class="idx">03</span> Progress Report</div>
+  <div class="tab" data-view="npi"><span class="idx">04</span> New Products</div>
 </div>
 
 <main>
@@ -1219,15 +1370,91 @@
     </div>
   </div>
 
+  <div class="view" id="view-npi">
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Product Readiness Overview</h2>
+        <span class="tag">6 milestones</span>
+      </div>
+      <div class="panel-body">
+        <div id="npiReadinessGrid"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>New Component / RFQ</h2>
+      </div>
+      <div class="panel-body">
+        <div class="note" style="margin-bottom:14px;">Fill in the essentials here — Part Number, cost, dates, samples, compliance, and everything else can be filled in afterward directly on the component card.</div>
+        <form id="componentForm">
+          <div class="field">
+            <label for="c_name">Component Name</label>
+            <input type="text" id="c_name" placeholder="e.g. Aluminum housing, PCB assembly..." required>
+          </div>
+          <div class="dc-row2">
+            <div class="field">
+              <label for="c_type">Type</label>
+              <select id="c_type">
+                <option value="Mechanical">Mechanical</option>
+                <option value="Optical">Optical</option>
+                <option value="Electrical">Electrical</option>
+                <option value="PCBA">PCBA</option>
+                <option value="Packaging">Packaging</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="c_partNumber">Part Number</label>
+              <input type="text" id="c_partNumber" placeholder="e.g. P000127">
+            </div>
+          </div>
+          <div class="field">
+            <label for="c_product">Linked Product</label>
+            <select id="c_product"></select>
+          </div>
+          <div class="field">
+            <label for="c_notes">Notes</label>
+            <textarea id="c_notes" placeholder="Optional notes about this component/RFQ..."></textarea>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Add Component</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Components &amp; Suppliers</h2>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="npiFilterProduct" style="max-width:160px;"><option value="">All Products</option></select>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="componentList"></div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <footer class="storage-note no-print">
-  <b>On data storage:</b> all data is saved locally in this browser's storage (localStorage) on this device — no server, no account. Data will not be shared across different browsers or devices. Use <b>Export Backup</b> to save a JSON file and <b>Import Backup</b> to restore it elsewhere.
+  <b>On data storage:</b> all data is saved locally in this browser's storage (localStorage/IndexedDB) on this device — no server, no account. File attachments in New Products are stored via IndexedDB, which is not included when you export a JSON backup (only file names are). Data will not be shared across different browsers or devices. Use <b>Export Backup</b> to save a JSON file and <b>Import Backup</b> to restore it elsewhere.
   <div class="btn-row" style="margin-top:10px;">
     <button class="btn btn-small" id="btnExport">Export Backup (JSON)</button>
     <button class="btn btn-small btn-ghost" id="btnImportTrigger">Import Backup</button>
     <button class="btn btn-small btn-ghost" id="btnLoadSample">Load Sample Data</button>
     <input type="file" id="fileImport" accept="application/json" style="display:none;">
+  </div>
+  <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--line);">
+    <b>Paper log:</b> print a quick-capture sheet to fill by hand at your desk, then scan it to add those activities here.
+  </div>
+  <div class="btn-row" style="margin-top:10px;">
+    <a class="btn btn-small btn-ghost" href="activity-template-print.html" target="_blank" style="text-decoration:none; display:inline-block;">🖨️ Print Template</a>
+    <a class="btn btn-small btn-ghost" href="photo-import.html" style="text-decoration:none; display:inline-block;">📷 Photo Import</a>
   </div>
 </footer>
 
@@ -1312,6 +1539,7 @@
       document.getElementById('view-'+tab.dataset.view).classList.add('active');
       if(tab.dataset.view === 'dashboard') renderDashboard();
       if(tab.dataset.view === 'report'){ renderSelectList(); renderReport(); }
+      if(tab.dataset.view === 'npi'){ renderNPI(); }
     });
   });
 
@@ -1339,6 +1567,25 @@
       var o = document.createElement('option'); o.value=p; o.textContent=p; repSel.appendChild(o);
     });
     repSel.value = prevR && products.includes(prevR) ? prevR : '';
+
+    var cProdSel = document.getElementById('c_product');
+    if(cProdSel){
+      var prevC = cProdSel.value;
+      cProdSel.innerHTML = '';
+      products.forEach(function(p){
+        var o = document.createElement('option'); o.value=p; o.textContent=p; cProdSel.appendChild(o);
+      });
+      if(products.includes(prevC)) cProdSel.value = prevC;
+    }
+    var npiFilterSel = document.getElementById('npiFilterProduct');
+    if(npiFilterSel){
+      var prevN = npiFilterSel.value;
+      npiFilterSel.innerHTML = '<option value="">All Products</option>';
+      products.forEach(function(p){
+        var o = document.createElement('option'); o.value=p; o.textContent=p; npiFilterSel.appendChild(o);
+      });
+      npiFilterSel.value = prevN && products.includes(prevN) ? prevN : '';
+    }
   }
   renderProductOptions();
 
@@ -2004,7 +2251,12 @@
   }
 
   document.getElementById('btnExport').addEventListener('click', function(){
-    var payload = { tasks: tasks, products: products, exportedAt: new Date().toISOString() };
+    var payload = {
+      tasks: tasks, products: products,
+      components: components, productStatus: productStatus,
+      exportedAt: new Date().toISOString(),
+      note: 'File attachments (documents uploaded in New Products) are stored separately in this browser\'s IndexedDB and are NOT included in this JSON backup — only their names/categories are. Restoring this backup on another device/browser will show the file entries but not their content.'
+    };
     var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -2028,6 +2280,10 @@
         if(!confirm('Import '+data.tasks.length+' activities? This will replace the current data.')) return;
         tasks = data.tasks;
         products = data.products && data.products.length ? data.products : products;
+        components = data.components || [];
+        productStatus = data.productStatus || {};
+        saveComponents(components);
+        saveProductStatus(productStatus);
         selectedIds.clear();
         saveTasks(tasks);
         saveProducts(products);
@@ -2036,7 +2292,8 @@
         renderDashboard();
         renderSelectList();
         renderReport();
-        alert('Backup imported successfully.');
+        renderNPI();
+        alert('Backup imported successfully.' + (data.components ? ' Note: any file attachments from New Products stay only on the original browser/device — only their names were restored here.' : ''));
       }catch(err){
         alert('Import failed: invalid file.');
       }
@@ -2523,6 +2780,502 @@
     document.getElementById('voiceModal').classList.remove('show');
     alert(count + ' activit' + (count===1?'y':'ies') + ' added. Review them in the Activity List tab.');
   });
+
+  // ================= NEW PRODUCTS / RFQ TRACKER =================
+  var LS_COMPONENTS = 'engops_components_v1';
+  var LS_PRODUCT_STATUS = 'engops_product_status_v1';
+
+  function loadComponents(){
+    try{ return JSON.parse(localStorage.getItem(LS_COMPONENTS)) || []; }catch(e){ return []; }
+  }
+  function saveComponents(arr){ localStorage.setItem(LS_COMPONENTS, JSON.stringify(arr)); }
+  function loadProductStatus(){
+    try{ return JSON.parse(localStorage.getItem(LS_PRODUCT_STATUS)) || {}; }catch(e){ return {}; }
+  }
+  function saveProductStatus(obj){ localStorage.setItem(LS_PRODUCT_STATUS, JSON.stringify(obj)); }
+
+  var components = loadComponents();
+  var productStatus = loadProductStatus();
+
+  // ---------- IndexedDB file storage (documents can be large; localStorage is unsuitable) ----------
+  var FILES_DB_NAME = 'engops_files_db';
+  var FILES_STORE = 'files';
+  var filesDbPromise = null;
+  function openFilesDB(){
+    if(filesDbPromise) return filesDbPromise;
+    filesDbPromise = new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error('IndexedDB not supported in this browser')); return; }
+      var req = indexedDB.open(FILES_DB_NAME, 1);
+      req.onupgradeneeded = function(e){
+        var db = e.target.result;
+        if(!db.objectStoreNames.contains(FILES_STORE)) db.createObjectStore(FILES_STORE, {keyPath:'id'});
+      };
+      req.onsuccess = function(e){ resolve(e.target.result); };
+      req.onerror = function(e){ reject(e.target.error); };
+    });
+    return filesDbPromise;
+  }
+  function dbPut(record){
+    return openFilesDB().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(FILES_STORE,'readwrite');
+        tx.objectStore(FILES_STORE).put(record);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(e){ reject(e.target.error); };
+      });
+    });
+  }
+  function dbGet(id){
+    return openFilesDB().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(FILES_STORE,'readonly');
+        var req = tx.objectStore(FILES_STORE).get(id);
+        req.onsuccess = function(){ resolve(req.result); };
+        req.onerror = function(e){ reject(e.target.error); };
+      });
+    });
+  }
+  function dbDelete(id){
+    return openFilesDB().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx = db.transaction(FILES_STORE,'readwrite');
+        tx.objectStore(FILES_STORE).delete(id);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(e){ reject(e.target.error); };
+      });
+    });
+  }
+
+  var QUOTATION_STATUSES = ['Not Requested','Requested','Received','Selected','Rejected'];
+  var SAMPLE_STATUSES = ['Not Requested','Requested','Received','Approved','Rejected'];
+  var COMPLIANCE_STATUSES = ['Pending','Submitted','Approved','Rejected'];
+  var VALIDATION_STATUSES = ['Pending','In Progress','Passed','Failed'];
+  var FILE_CATEGORIES = ['Quotation','Compliance','Sample Report','Validation Report','Other'];
+  var COMPONENT_TYPES = ['Mechanical','Optical','Electrical','PCBA','Packaging','Other'];
+  var MAKEBUY_OPTIONS = ['Buy CHN','Buy IT','Buy Other','Make'];
+  var CHECKED_OPTIONS = ['No','Yes'];
+  var INCOMING_INSPECTION_OPTIONS = ['Pending','Passed','Failed','N/A'];
+  var PENDINGS_OPTIONS = ['','R&D','Quote','LT','CER','Validation','TRO','Quality','PO','Supply-chain'];
+  var NPI_PRIORITY_OPTIONS = ['1. CRITICAL','1. HIGH','2. MED','3. LOW'];
+
+  var WI_STATUSES = ['Not Started','Draft','Ready'];
+  var FAI_STATUSES = ['Not Started','In Progress','Passed','Failed'];
+  var FIRST100_STATUSES = ['Not Started','In Progress','Completed'];
+  var MASSPROD_STATUSES = ['Not Started','Ramping','Full Production'];
+  var DEFAULT_PRODUCT_STATUS = {wi:'Not Started', fai:'Not Started', first100:'Not Started', massProd:'Not Started'};
+
+  function npiSelectHTML(options, current, attrs){
+    return '<select '+(attrs||'')+'>' + options.map(function(o){
+      return '<option value="'+o+'" '+(o===current?'selected':'')+'>'+o+'</option>';
+    }).join('') + '</select>';
+  }
+
+  function computeProductAggregates(productName){
+    var comps = components.filter(function(c){ return c.product === productName; });
+    var totalComps = comps.length;
+    var quotedComps = comps.filter(function(c){
+      return c.suppliers.some(function(s){ return s.quotationStatus === 'Selected'; });
+    }).length;
+    var validatedComps = comps.filter(function(c){
+      return c.suppliers.some(function(s){ return s.samplesValidation === 'Passed'; });
+    }).length;
+    return {
+      totalComps: totalComps, quotedComps: quotedComps, validatedComps: validatedComps,
+      quotationPct: totalComps ? Math.round(quotedComps/totalComps*100) : 0,
+      validationPct: totalComps ? Math.round(validatedComps/totalComps*100) : 0
+    };
+  }
+
+  function progressBarHTML(pct){
+    return '<div class="npi-progress-track"><div class="npi-progress-fill" style="width:'+pct+'%;"></div></div>';
+  }
+
+  function renderReadinessGrid(){
+    var el = document.getElementById('npiReadinessGrid');
+    if(!el) return;
+    if(products.length === 0){
+      el.innerHTML = '<div class="empty-state">No products yet — add one from the Activity List tab first.</div>';
+      return;
+    }
+    el.innerHTML = products.map(function(p){
+      var agg = computeProductAggregates(p);
+      var st = productStatus[p] || DEFAULT_PRODUCT_STATUS;
+      return '<div class="npi-product-card">' +
+        '<div class="npi-title"><span>'+escapeHtml(p)+'</span><span style="font-family:\'IBM Plex Mono\',monospace; font-size:10px; color:var(--muted);">'+agg.totalComps+' component'+(agg.totalComps===1?'':'s')+'</span></div>' +
+        '<div class="npi-milestones">' +
+          '<div class="npi-milestone"><label>Quotation Status</label>' +
+            progressBarHTML(agg.quotationPct) +
+            '<div class="npi-progress-text">'+agg.quotedComps+' / '+agg.totalComps+' sourced ('+agg.quotationPct+'%)</div>' +
+          '</div>' +
+          '<div class="npi-milestone"><label>Validation Status</label>' +
+            progressBarHTML(agg.validationPct) +
+            '<div class="npi-progress-text">'+agg.validatedComps+' / '+agg.totalComps+' validated ('+agg.validationPct+'%)</div>' +
+          '</div>' +
+          '<div class="npi-milestone"><label>Work Instructions</label>' +
+            npiSelectHTML(WI_STATUSES, st.wi, 'data-product="'+escapeHtml(p)+'" data-field="wi" class="npi-status-select"') +
+          '</div>' +
+          '<div class="npi-milestone"><label>FAI Production</label>' +
+            npiSelectHTML(FAI_STATUSES, st.fai, 'data-product="'+escapeHtml(p)+'" data-field="fai" class="npi-status-select"') +
+          '</div>' +
+          '<div class="npi-milestone"><label>First 100u Batch</label>' +
+            npiSelectHTML(FIRST100_STATUSES, st.first100, 'data-product="'+escapeHtml(p)+'" data-field="first100" class="npi-status-select"') +
+          '</div>' +
+          '<div class="npi-milestone"><label>Mass Production</label>' +
+            npiSelectHTML(MASSPROD_STATUSES, st.massProd, 'data-product="'+escapeHtml(p)+'" data-field="massProd" class="npi-status-select"') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('npiReadinessGrid').addEventListener('change', function(e){
+    if(!e.target.classList.contains('npi-status-select')) return;
+    var product = e.target.dataset.product;
+    var field = e.target.dataset.field;
+    if(!productStatus[product]){
+      productStatus[product] = {wi:'Not Started', fai:'Not Started', first100:'Not Started', massProd:'Not Started'};
+    }
+    productStatus[product][field] = e.target.value;
+    saveProductStatus(productStatus);
+  });
+
+  function newComponentDefaults(){
+    return {
+      type: 'Mechanical', partNumber: '', description: '', source: '', legacyPN: '',
+      dfmUpdates: '', lastUpdate: '', ecnNumber: '', qualityCritical: false,
+      qty1kit: '', qty5kit: '', qty10kit: '', inventory: '',
+      incomingInspection: 'Pending', troApproved: false, finalReports: ''
+    };
+  }
+  function newSupplierDefaults(){
+    return {
+      id: 'sup_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: 'New Supplier',
+      mfgName: '', mfgPartNumber: '', reseller: '', makeBuy: 'Buy CHN', contactForQuote: '',
+      moq: '', unitCost: '', totalCost: '', leadTimeWeeks: '',
+      quotationStatus: 'Not Requested',
+      prIrSrDate: '', targetPODate: '', targetForecast: '', effectivePODate: '', promiseDate: '', effectiveArrivalDate: '',
+      checked: 'No',
+      sampleStatus: 'Not Requested', samplesValidation: 'Pending', supplierValidationStatus: 'Pending',
+      complianceStatus: 'Pending', pendings: '', priority: '2. MED', owner: '', supplierNotes: '',
+      files: []
+    };
+  }
+
+  document.getElementById('componentForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('c_name').value.trim();
+    if(!name) return;
+    var product = document.getElementById('c_product').value;
+    var notes = document.getElementById('c_notes').value.trim();
+    var type = document.getElementById('c_type').value;
+    var partNumber = document.getElementById('c_partNumber').value.trim();
+    var comp = Object.assign({
+      id: 'comp_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: name, product: product, notes: notes,
+      suppliers: []
+    }, newComponentDefaults());
+    comp.type = type;
+    comp.partNumber = partNumber;
+    components.push(comp);
+    saveComponents(components);
+    document.getElementById('componentForm').reset();
+    renderComponentList();
+    renderReadinessGrid();
+  });
+
+  document.getElementById('npiFilterProduct').addEventListener('change', function(){
+    renderComponentList();
+  });
+
+  function fileSizeLabel(bytes){
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024*1024) return Math.round(bytes/1024) + ' KB';
+    return (Math.round(bytes/1024/1024*10)/10) + ' MB';
+  }
+
+  function fileChipHTML(f){
+    return '<span class="file-chip">' +
+      '<span class="fc-cat">'+escapeHtml(f.category)+'</span>' +
+      '<a href="#" class="file-open" data-file-id="'+f.id+'" title="'+fileSizeLabel(f.size||0)+'">'+escapeHtml(f.name)+'</a>' +
+      '<button type="button" class="file-delete" data-file-id="'+f.id+'" title="Delete file">✕</button>' +
+    '</span>';
+  }
+
+  function npiInputHTML(type, value, attrs){
+    return '<input type="'+type+'" value="'+escapeHtml(value==null?'':value)+'" '+(attrs||'')+'>';
+  }
+  function npiField(label, inputHtml){
+    return '<div class="ss-field"><label>'+label+'</label>'+inputHtml+'</div>';
+  }
+
+  function supplierCardHTML(compId, s){
+    return '<div class="supplier-card" data-comp-id="'+compId+'" data-supplier-id="'+s.id+'">' +
+      '<div class="supplier-head">' +
+        '<input type="text" class="supplier-name-input" data-field="name" value="'+escapeHtml(s.name)+'" placeholder="Supplier name">' +
+        '<button type="button" class="dc-remove supplier-remove" title="Remove supplier">✕</button>' +
+      '</div>' +
+      '<div class="supplier-status-row">' +
+        npiField('Quotation', npiSelectHTML(QUOTATION_STATUSES, s.quotationStatus, 'data-field="quotationStatus"')) +
+        npiField('Priority', npiSelectHTML(NPI_PRIORITY_OPTIONS, s.priority, 'data-field="priority"')) +
+        npiField('Pendings', npiSelectHTML(PENDINGS_OPTIONS, s.pendings, 'data-field="pendings"')) +
+        npiField('Owner', npiInputHTML('text', s.owner, 'data-field="owner"')) +
+      '</div>' +
+
+      '<details class="sup-section">' +
+        '<summary>Sourcing &amp; Commercial</summary>' +
+        '<div class="sup-section-body">' +
+          '<div class="supplier-status-row">' +
+            npiField('Mfg Name', npiInputHTML('text', s.mfgName, 'data-field="mfgName"')) +
+            npiField('Mfg Part Number', npiInputHTML('text', s.mfgPartNumber, 'data-field="mfgPartNumber"')) +
+            npiField('Reseller', npiInputHTML('text', s.reseller, 'data-field="reseller"')) +
+            npiField('M/B', npiSelectHTML(MAKEBUY_OPTIONS, s.makeBuy, 'data-field="makeBuy"')) +
+          '</div>' +
+          '<div class="supplier-status-row">' +
+            npiField('Contact for Quote', npiInputHTML('text', s.contactForQuote, 'data-field="contactForQuote"')) +
+            npiField('MOQ', npiInputHTML('number', s.moq, 'data-field="moq"')) +
+            npiField('Unit Cost', npiInputHTML('number', s.unitCost, 'data-field="unitCost" step="0.01"')) +
+            npiField('Total Cost', npiInputHTML('number', s.totalCost, 'data-field="totalCost" step="0.01"')) +
+          '</div>' +
+          '<div class="supplier-status-row">' +
+            npiField('LT (weeks)', npiInputHTML('number', s.leadTimeWeeks, 'data-field="leadTimeWeeks"')) +
+          '</div>' +
+        '</div>' +
+      '</details>' +
+
+      '<details class="sup-section">' +
+        '<summary>Dates</summary>' +
+        '<div class="sup-section-body">' +
+          '<div class="supplier-status-row">' +
+            npiField('PR/IR/SR Date', npiInputHTML('date', s.prIrSrDate, 'data-field="prIrSrDate"')) +
+            npiField('Target PO Date', npiInputHTML('date', s.targetPODate, 'data-field="targetPODate"')) +
+            npiField('Target Forecast', npiInputHTML('date', s.targetForecast, 'data-field="targetForecast"')) +
+          '</div>' +
+          '<div class="supplier-status-row">' +
+            npiField('Effective PO Date', npiInputHTML('date', s.effectivePODate, 'data-field="effectivePODate"')) +
+            npiField('Promise Date', npiInputHTML('date', s.promiseDate, 'data-field="promiseDate"')) +
+            npiField('Effective Arrival', npiInputHTML('date', s.effectiveArrivalDate, 'data-field="effectiveArrivalDate"')) +
+          '</div>' +
+        '</div>' +
+      '</details>' +
+
+      '<details class="sup-section">' +
+        '<summary>Quality &amp; Status</summary>' +
+        '<div class="sup-section-body">' +
+          '<div class="supplier-status-row">' +
+            npiField('Sample Parts', npiSelectHTML(SAMPLE_STATUSES, s.sampleStatus, 'data-field="sampleStatus"')) +
+            npiField('Samples Validation', npiSelectHTML(VALIDATION_STATUSES, s.samplesValidation, 'data-field="samplesValidation"')) +
+            npiField('Supplier Validation', npiSelectHTML(VALIDATION_STATUSES, s.supplierValidationStatus, 'data-field="supplierValidationStatus"')) +
+            npiField('Compliance', npiSelectHTML(COMPLIANCE_STATUSES, s.complianceStatus, 'data-field="complianceStatus"')) +
+          '</div>' +
+          '<div class="supplier-status-row">' +
+            npiField('Checked', npiSelectHTML(CHECKED_OPTIONS, s.checked, 'data-field="checked"')) +
+          '</div>' +
+          '<div class="field"><label>Notes</label><textarea data-field="supplierNotes" rows="2">'+escapeHtml(s.supplierNotes||'')+'</textarea></div>' +
+        '</div>' +
+      '</details>' +
+
+      '<div class="file-zone">' +
+        '<div class="file-cat-row">' +
+          '<select class="file-cat-select">' + FILE_CATEGORIES.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('') + '</select>' +
+          '<input type="file" class="file-input-el">' +
+        '</div>' +
+        '<div class="file-chip-list">' + (s.files||[]).map(fileChipHTML).join('') + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function componentCardHTML(c){
+    return '<div class="component-card" data-comp-id="'+c.id+'">' +
+      '<div class="component-head">' +
+        '<div><h3>'+escapeHtml(c.name)+'</h3><div class="comp-meta">'+escapeHtml(c.product)+(c.partNumber?' · '+escapeHtml(c.partNumber):'')+' · '+c.suppliers.length+' supplier'+(c.suppliers.length===1?'':'s')+'</div></div>' +
+        '<button type="button" class="dc-remove component-remove" title="Delete component">✕</button>' +
+      '</div>' +
+      '<div class="component-body">' +
+        '<details class="sup-section" open>' +
+          '<summary>Component Details</summary>' +
+          '<div class="sup-section-body">' +
+            '<div class="supplier-status-row">' +
+              npiField('Type', npiSelectHTML(COMPONENT_TYPES, c.type, 'data-comp-field="type"')) +
+              npiField('Part Number', npiInputHTML('text', c.partNumber, 'data-comp-field="partNumber"')) +
+              npiField('Legacy PN', npiInputHTML('text', c.legacyPN, 'data-comp-field="legacyPN"')) +
+              npiField('ECN Number', npiInputHTML('text', c.ecnNumber, 'data-comp-field="ecnNumber"')) +
+            '</div>' +
+            '<div class="field"><label>Description</label>'+npiInputHTML('text', c.description, 'data-comp-field="description" style="width:100%;"')+'</div>' +
+            '<div class="supplier-status-row">' +
+              npiField('Source', npiInputHTML('text', c.source, 'data-comp-field="source"')) +
+              npiField('DFM Updates', npiInputHTML('text', c.dfmUpdates, 'data-comp-field="dfmUpdates"')) +
+              npiField('Last Update', npiInputHTML('date', c.lastUpdate, 'data-comp-field="lastUpdate"')) +
+              '<div class="ss-field"><label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" data-comp-field="qualityCritical" '+(c.qualityCritical?'checked':'')+' style="width:auto;"> Quality Critical</label></div>' +
+            '</div>' +
+            '<div class="supplier-status-row">' +
+              npiField('Qty / 1 kit', npiInputHTML('number', c.qty1kit, 'data-comp-field="qty1kit"')) +
+              npiField('Qty / 5 kit', npiInputHTML('number', c.qty5kit, 'data-comp-field="qty5kit"')) +
+              npiField('Qty / 10 kit', npiInputHTML('number', c.qty10kit, 'data-comp-field="qty10kit"')) +
+              npiField('Inventory', npiInputHTML('text', c.inventory, 'data-comp-field="inventory"')) +
+            '</div>' +
+            '<div class="supplier-status-row">' +
+              npiField('Incoming Inspection', npiSelectHTML(INCOMING_INSPECTION_OPTIONS, c.incomingInspection, 'data-comp-field="incomingInspection"')) +
+              '<div class="ss-field"><label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" data-comp-field="troApproved" '+(c.troApproved?'checked':'')+' style="width:auto;"> TRO Approved</label></div>' +
+              npiField('Final Reports', npiInputHTML('text', c.finalReports, 'data-comp-field="finalReports"')) +
+            '</div>' +
+          '</div>' +
+        '</details>' +
+        (c.notes ? '<div class="component-notes">'+escapeHtml(c.notes)+'</div>' : '') +
+        '<div class="supplier-list">' + c.suppliers.map(function(s){ return supplierCardHTML(c.id, s); }).join('') + '</div>' +
+        '<div class="comp-btn-row"><button type="button" class="btn btn-small add-supplier-btn">+ Add Supplier</button></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderComponentList(){
+    var el = document.getElementById('componentList');
+    if(!el) return;
+    var filterProduct = document.getElementById('npiFilterProduct').value;
+    var list = components.filter(function(c){ return !filterProduct || c.product === filterProduct; });
+    if(list.length === 0){
+      el.innerHTML = '<div class="empty-state">No components tracked yet. Add one above to start tracking RFQs.</div>';
+      return;
+    }
+    el.innerHTML = list.map(componentCardHTML).join('');
+  }
+
+  function findComponent(id){ return components.find(function(c){ return c.id === id; }); }
+  function findSupplierIn(comp, id){ return comp.suppliers.find(function(s){ return s.id === id; }); }
+
+  document.getElementById('componentList').addEventListener('click', function(e){
+    var target = e.target;
+
+    if(target.classList.contains('component-remove')){
+      var card = target.closest('.component-card');
+      var compId = card.dataset.compId;
+      if(!confirm('Delete this component and all its suppliers/files? This cannot be undone.')) return;
+      var comp = findComponent(compId);
+      if(comp){
+        comp.suppliers.forEach(function(s){ (s.files||[]).forEach(function(f){ dbDelete(f.id).catch(function(){}); }); });
+      }
+      components = components.filter(function(c){ return c.id !== compId; });
+      saveComponents(components);
+      renderComponentList();
+      renderReadinessGrid();
+      return;
+    }
+
+    if(target.classList.contains('add-supplier-btn')){
+      var card2 = target.closest('.component-card');
+      var comp2 = findComponent(card2.dataset.compId);
+      comp2.suppliers.push(newSupplierDefaults());
+      saveComponents(components);
+      renderComponentList();
+      renderReadinessGrid();
+      return;
+    }
+
+    if(target.classList.contains('supplier-remove')){
+      var sCard = target.closest('.supplier-card');
+      if(!confirm('Remove this supplier and its files?')) return;
+      var comp3 = findComponent(sCard.dataset.compId);
+      var sup3 = findSupplierIn(comp3, sCard.dataset.supplierId);
+      if(sup3){ (sup3.files||[]).forEach(function(f){ dbDelete(f.id).catch(function(){}); }); }
+      comp3.suppliers = comp3.suppliers.filter(function(s){ return s.id !== sCard.dataset.supplierId; });
+      saveComponents(components);
+      renderComponentList();
+      renderReadinessGrid();
+      return;
+    }
+
+    if(target.classList.contains('file-delete')){
+      e.preventDefault();
+      var sCard2 = target.closest('.supplier-card');
+      var comp4 = findComponent(sCard2.dataset.compId);
+      var sup4 = findSupplierIn(comp4, sCard2.dataset.supplierId);
+      var fileId = target.dataset.fileId;
+      sup4.files = (sup4.files||[]).filter(function(f){ return f.id !== fileId; });
+      saveComponents(components);
+      dbDelete(fileId).catch(function(){});
+      renderComponentList();
+      return;
+    }
+
+    if(target.classList.contains('file-open')){
+      e.preventDefault();
+      dbGet(target.dataset.fileId).then(function(record){
+        if(!record || !record.blob){ alert('File not found in this browser\'s local storage.'); return; }
+        var url = URL.createObjectURL(record.blob);
+        window.open(url, '_blank');
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 30000);
+      }).catch(function(){
+        alert('Could not open file.');
+      });
+      return;
+    }
+  });
+
+  function handleComponentFieldChange(e){
+    var target = e.target;
+    if(!target.dataset.compField) return;
+    var card = target.closest('.component-card');
+    if(!card) return;
+    var comp = findComponent(card.dataset.compId);
+    if(!comp) return;
+    var field = target.dataset.compField;
+    comp[field] = target.type === 'checkbox' ? target.checked : target.value;
+    saveComponents(components);
+  }
+  document.getElementById('componentList').addEventListener('input', handleComponentFieldChange);
+  document.getElementById('componentList').addEventListener('change', handleComponentFieldChange);
+
+  function handleSupplierFieldChange(e){
+    var target = e.target;
+    if(target.classList.contains('file-input-el')){
+      if(e.type !== 'change') return; // avoid double-handling if both input+change fire
+      var file = target.files[0];
+      if(!file) return;
+      var sCard = target.closest('.supplier-card');
+      var category = sCard.querySelector('.file-cat-select').value;
+      var comp = findComponent(sCard.dataset.compId);
+      var sup = findSupplierIn(comp, sCard.dataset.supplierId);
+
+      var MAX_SIZE = 8 * 1024 * 1024;
+      if(file.size > MAX_SIZE){
+        alert('This file is ' + Math.round(file.size/1024/1024) + 'MB — please keep attachments under 8MB (files are stored in this browser, not on a server).');
+        target.value = '';
+        return;
+      }
+
+      var fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      dbPut({ id: fileId, blob: file, name: file.name, type: file.type, size: file.size }).then(function(){
+        sup.files = sup.files || [];
+        sup.files.push({ id: fileId, name: file.name, category: category, type: file.type, size: file.size, uploadedAt: new Date().toISOString() });
+        saveComponents(components);
+        renderComponentList();
+      }).catch(function(err){
+        alert('Could not save file: ' + err.message);
+      });
+      target.value = '';
+      return;
+    }
+
+    if(!target.dataset.field) return;
+    var sCard2 = target.closest('.supplier-card');
+    if(!sCard2) return;
+    var comp2 = findComponent(sCard2.dataset.compId);
+    var sup2 = findSupplierIn(comp2, sCard2.dataset.supplierId);
+    if(!sup2) return;
+    var field = target.dataset.field;
+    sup2[field] = target.value;
+    saveComponents(components);
+    if(field === 'quotationStatus' || field === 'samplesValidation'){
+      renderReadinessGrid();
+    }
+  }
+  document.getElementById('componentList').addEventListener('input', handleSupplierFieldChange);
+  document.getElementById('componentList').addEventListener('change', handleSupplierFieldChange);
+
+  function renderNPI(){
+    renderReadinessGrid();
+    renderComponentList();
+  }
 
   window.EngOps = { edit: editTask, remove: deleteTask };
 

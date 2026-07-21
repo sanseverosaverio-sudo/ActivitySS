@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Photo Import — Activity Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e131a; --panel:#161d27; --panel-2:#1b2430;
+    --line:#28323e; --line-soft:#1f2833;
+    --text:#e7ecf2; --muted:#8996a6; --muted-2:#5c6879;
+    --accent:#ff8b3d; --accent-dim:#7a4826;
+    --teal:#43c6ac; --teal-dim:#245349;
+    --high:#e2574c; --medium:#eab308; --low:#43c6ac;
+    --radius:2px;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    margin:0; padding:0 0 60px;
+  }
+  header{
+    padding:20px 20px 16px; border-bottom:1px solid var(--line);
+  }
+  header h1{
+    font-family:'Space Grotesk', sans-serif; font-size:20px; margin:0 0 4px;
+  }
+  header .sub{ font-size:12px; color:var(--muted); font-family:'IBM Plex Mono', monospace; }
+  header a{ color:var(--teal); text-decoration:none; }
+  main{ max-width:900px; margin:0 auto; padding:20px 16px; }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); margin-bottom:20px;
+  }
+  .panel-head{
+    padding:14px 16px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .panel-head h2{
+    font-family:'Space Grotesk', sans-serif; font-size:15px; margin:0;
+    text-transform:uppercase; letter-spacing:.02em;
+  }
+  .panel-body{ padding:16px; }
+  .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; background:var(--accent); color:#0e131a;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:700;
+    border-radius:50%; margin-right:8px;
+  }
+
+  .note{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; line-height:1.6;
+    color:var(--teal); border:1px solid var(--teal-dim); background:rgba(67,198,172,.08);
+    padding:10px 12px; margin-bottom:14px; border-radius:var(--radius);
+  }
+  .note.warn{ color:var(--accent); border-color:var(--accent-dim); background:rgba(255,139,61,.08); }
+
+  .btn{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:9px 14px; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    cursor:pointer; border-radius:var(--radius); text-transform:uppercase; letter-spacing:.03em;
+  }
+  .btn:hover{ border-color:var(--accent); }
+  .btn-primary{ background:var(--accent); border-color:var(--accent); color:#1a0f06; font-weight:600; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+
+  input[type=number], input[type=text], select, textarea{
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:8px 9px; font-family:'IBM Plex Sans', sans-serif; font-size:12.5px;
+    border-radius:var(--radius); outline:none;
+  }
+  input:focus, select:focus, textarea:focus{ border-color:var(--accent); }
+  label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px; }
+
+  #dropZone{
+    border:2px dashed var(--line); padding:30px 16px; text-align:center;
+    cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);
+  }
+  #dropZone:hover{ border-color:var(--accent); color:var(--text); }
+
+  .canvas-wrap{ position:relative; max-width:100%; overflow:auto; background:#000; }
+  #photoCanvas, #warpedCanvas{ display:block; max-width:100%; height:auto; }
+  .handle{
+    position:absolute; width:22px; height:22px; margin:-11px 0 0 -11px;
+    border:2px solid var(--accent); background:rgba(255,139,61,.35);
+    border-radius:50%; cursor:grab; touch-action:none;
+  }
+  .handle:active{ cursor:grabbing; }
+
+  .progress-line{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-top:8px; }
+
+  .draft-card{
+    border:1px solid var(--line); border-left:3px solid var(--accent);
+    padding:12px; margin-bottom:12px; background:var(--panel-2);
+  }
+  .draft-card .dc-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .draft-card .dc-head b{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); text-transform:uppercase; }
+  .dc-remove{
+    background:transparent; border:1px solid var(--line); color:var(--muted);
+    width:26px; height:26px; cursor:pointer; border-radius:var(--radius);
+  }
+  .dc-field{ display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; }
+  .dc-field .cell-thumb{
+    width:64px; height:34px; object-fit:cover; border:1px solid var(--line); flex-shrink:0; background:#fff;
+  }
+  .dc-field .dc-input-wrap{ flex:1; }
+  .dc-field .dc-input-wrap label{ margin-bottom:3px; }
+  .dc-field input, .dc-field select{ width:100%; }
+  .dc-row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  @media (max-width:560px){ .dc-row2{ grid-template-columns:1fr; } }
+
+  footer.storage-note{
+    max-width:900px; margin:0 auto; padding:16px; font-family:'IBM Plex Mono', monospace;
+    font-size:10px; color:var(--muted-2); text-align:center; line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📷 Photo Import</h1>
+  <div class="sub">Scan a filled paper log sheet and add the activities to your Activity Register · <a href="index.html">← Back to dashboard</a></div>
+</header>
+
+<main>
+
+  <div class="note">
+    100% local: your photo is processed entirely in this browser (perspective correction, checkbox detection, and text recognition all run on-device). The only network activity is a one-time download of the open-source text-recognition library from a public CDN — the photo itself is never uploaded anywhere.
+  </div>
+  <div class="note warn">
+    Handwriting recognition is imperfect — expect to correct some fields by hand. Checkbox fields (Priority, Type, R&amp;D) are detected by simple mark/no-mark image analysis and are far more reliable than handwritten text. Every row is shown for review before anything is saved, and importing here always <b>adds</b> to your existing activities — it never replaces or deletes them.
+  </div>
+
+  <!-- STEP 1: upload -->
+  <div class="panel">
+    <div class="panel-head"><h2><span class="step-num">1</span>Load Photo</h2></div>
+    <div class="panel-body">
+      <div id="dropZone">Tap to take a photo or choose an image of the filled sheet<br><input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: perspective correction -->
+  <div class="panel" id="panelPerspective" style="display:none;">
+    <div class="panel-head"><h2><span class="step-num">2</span>Align the Table</h2></div>
+    <div class="panel-body">
+      <div class="note">Drag the 4 orange handles onto the 4 <b>outer corners of the data rows only</b> — start just below the column-header text, and end at the bottom-right of your last filled row. Don't include the title/header row.</div>
+      <div class="canvas-wrap"><canvas id="photoCanvas"></canvas></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnWarp">Correct Perspective →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: warped preview + row count -->
+  <div class="panel" id="panelWarped" style="display:none;">
+    <div class="panel-head"><h2><span class="step-num">3</span>Confirm &amp; Extract</h2></div>
+    <div class="panel-body">
+      <div class="canvas-wrap"><canvas id="warpedCanvas"></canvas></div>
+      <div style="margin-top:12px; max-width:220px;">
+        <label for="rowCount">Filled rows on this sheet</label>
+        <input type="number" id="rowCount" min="1" max="12" value="8">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btnRedo">↺ Redo Alignment</button>
+        <button class="btn btn-primary" id="btnExtract">Extract Data →</button>
+      </div>
+      <div class="progress-line" id="progressLine"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: review drafts -->
+  <div class="panel" id="panelReview" style="display:none;">
+    <div class="panel-head"><h2><span class="step-num">4</span>Review &amp; Add</h2><span id="reviewCount" style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted);"></span></div>
+    <div class="panel-body">
+      <div id="draftList"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnCommit">Add to Activity Register</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="storage-note">
+  This tool reads and writes the same local storage as the main Activity Register on this device/browser — nothing is sent to a server. Import here only ever adds new activities; it never deletes or overwrites existing ones.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // ===== shared storage keys — must match index.html exactly =====
+  var LS_TASKS = 'engops_tasks_v1';
+  var LS_PRODUCTS = 'engops_products_v1';
+
+  function loadTasks(){
+    try{ return JSON.parse(localStorage.getItem(LS_TASKS)) || []; }catch(e){ return []; }
+  }
+  function saveTasks(t){ localStorage.setItem(LS_TASKS, JSON.stringify(t)); }
+  function loadProducts(){
+    try{
+      var p = JSON.parse(localStorage.getItem(LS_PRODUCTS));
+      return (p && p.length) ? p : ['Product A','Product B','Product C'];
+    }catch(e){ return ['Product A','Product B','Product C']; }
+  }
+  function saveProducts(p){ localStorage.setItem(LS_PRODUCTS, JSON.stringify(p)); }
+
+  // ===== column layout — must match activity-template-print.html exactly =====
+  // Each column's width as a % of the total table width, left to right.
+  var COLUMNS = [
+    { key:'n',        w:3  },
+    { key:'product',  w:11, kind:'text' },
+    { key:'desc',     w:19, kind:'text' },
+    { key:'start',    w:10, kind:'text' },
+    { key:'end',      w:10, kind:'text' },
+    { key:'priority', w:10, kind:'priority' },
+    { key:'type',     w:10, kind:'type' },
+    { key:'rd',       w:9,  kind:'rd' },
+    { key:'ecr',      w:6,  kind:'text' },
+    { key:'ocn',      w:6,  kind:'text' },
+    { key:'notes',    w:6,  kind:'text' }
+  ];
+
+  function escapeHtml(s){
+    if(s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  // ================= Step 1: upload =================
+  var uploadedImage = null;
+  var dropZone = document.getElementById('dropZone');
+  var fileInput = document.getElementById('fileInput');
+  dropZone.addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      var img = new Image();
+      img.onload = function(){
+        uploadedImage = img;
+        initPerspectiveStep(img);
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ================= Step 2: perspective handles =================
+  var photoCanvas = document.getElementById('photoCanvas');
+  var photoCtx = photoCanvas.getContext('2d');
+  var corners = []; // 4 points in canvas pixel coords: TL, TR, BR, BL
+  var handles = [];
+  var displayScale = 1;
+
+  function initPerspectiveStep(img){
+    document.getElementById('panelPerspective').style.display = 'block';
+    document.getElementById('panelWarped').style.display = 'none';
+    document.getElementById('panelReview').style.display = 'none';
+
+    var maxW = Math.min(900, window.innerWidth - 40);
+    displayScale = Math.min(1, maxW / img.width);
+    photoCanvas.width = img.width * displayScale;
+    photoCanvas.height = img.height * displayScale;
+    photoCtx.drawImage(img, 0, 0, photoCanvas.width, photoCanvas.height);
+
+    var w = photoCanvas.width, h = photoCanvas.height;
+    corners = [
+      {x: w*0.12, y: h*0.15}, // TL
+      {x: w*0.88, y: h*0.15}, // TR
+      {x: w*0.88, y: h*0.85}, // BR
+      {x: w*0.12, y: h*0.85}  // BL
+    ];
+    renderHandles();
+    document.getElementById('panelPerspective').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function renderHandles(){
+    handles.forEach(function(h){ h.remove(); });
+    handles = [];
+    var wrap = photoCanvas.parentElement;
+    wrap.style.position = 'relative';
+    corners.forEach(function(c, i){
+      var h = document.createElement('div');
+      h.className = 'handle';
+      h.style.left = c.x + 'px';
+      h.style.top = c.y + 'px';
+      wrap.appendChild(h);
+      handles.push(h);
+      makeDraggable(h, i);
+    });
+  }
+
+  function makeDraggable(el, idx){
+    function move(clientX, clientY){
+      var rect = photoCanvas.getBoundingClientRect();
+      var x = clientX - rect.left;
+      var y = clientY - rect.top;
+      x = Math.max(0, Math.min(photoCanvas.width, x));
+      y = Math.max(0, Math.min(photoCanvas.height, y));
+      corners[idx] = {x:x, y:y};
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      function onMove(ev){ move(ev.clientX, ev.clientY); }
+      function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    el.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      function onMove(ev){ var t = ev.touches[0]; move(t.clientX, t.clientY); }
+      function onEnd(){ document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); }
+      document.addEventListener('touchmove', onMove, {passive:false});
+      document.addEventListener('touchend', onEnd);
+    }, {passive:false});
+  }
+
+  // ================= Homography math =================
+  function solveLinear(A, b){
+    var n = A.length;
+    var M = A.map(function(row, i){ return row.concat([b[i]]); });
+    for(var col=0; col<n; col++){
+      var maxRow = col;
+      for(var r=col+1; r<n; r++){ if(Math.abs(M[r][col]) > Math.abs(M[maxRow][col])) maxRow = r; }
+      var tmp = M[col]; M[col] = M[maxRow]; M[maxRow] = tmp;
+      var pivot = M[col][col];
+      if(Math.abs(pivot) < 1e-12) continue;
+      for(var r2=0; r2<n; r2++){
+        if(r2===col) continue;
+        var factor = M[r2][col] / pivot;
+        for(var c=col; c<=n; c++){ M[r2][c] -= factor * M[col][c]; }
+      }
+    }
+    return M.map(function(row, i){ return row[n] / row[i]; });
+  }
+  function computeHomography(srcPts, dstPts){
+    var A = [], b = [];
+    for(var i=0;i<4;i++){
+      var x=srcPts[i][0], y=srcPts[i][1], X=dstPts[i][0], Y=dstPts[i][1];
+      A.push([x,y,1,0,0,0,-x*X,-y*X]); b.push(X);
+      A.push([0,0,0,x,y,1,-x*Y,-y*Y]); b.push(Y);
+    }
+    return solveLinear(A,b);
+  }
+  function applyH(h, x, y){
+    var denom = h[6]*x + h[7]*y + 1;
+    return [ (h[0]*x + h[1]*y + h[2]) / denom, (h[3]*x + h[4]*y + h[5]) / denom ];
+  }
+
+  var warpedCanvas = document.getElementById('warpedCanvas');
+  var warpedCtx = warpedCanvas.getContext('2d');
+  var OUT_W = 1400, OUT_H = 1000; // fixed output size for the corrected table image
+
+  document.getElementById('btnWarp').addEventListener('click', function(){
+    // corners collected in *displayed* canvas pixels — convert to full-resolution photo pixels
+    var scaleBack = 1/displayScale;
+    var photoPts = corners.map(function(c){ return [c.x*scaleBack, c.y*scaleBack]; });
+    var outRect = [[0,0],[OUT_W,0],[OUT_W,OUT_H],[0,OUT_H]];
+    var H = computeHomography(outRect, photoPts);
+
+    // draw full-res source photo to an offscreen canvas to read pixels from
+    var srcCanvas = document.createElement('canvas');
+    srcCanvas.width = uploadedImage.width;
+    srcCanvas.height = uploadedImage.height;
+    var srcCtx = srcCanvas.getContext('2d');
+    srcCtx.drawImage(uploadedImage, 0, 0);
+    var srcData = srcCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height).data;
+    var srcW = srcCanvas.width, srcH = srcCanvas.height;
+
+    warpedCanvas.width = OUT_W;
+    warpedCanvas.height = OUT_H;
+    var outImgData = warpedCtx.createImageData(OUT_W, OUT_H);
+    var outData = outImgData.data;
+
+    for(var oy=0; oy<OUT_H; oy++){
+      for(var ox=0; ox<OUT_W; ox++){
+        var srcXY = applyH(H, ox, oy);
+        var sx = Math.round(srcXY[0]), sy = Math.round(srcXY[1]);
+        var outIdx = (oy*OUT_W + ox)*4;
+        if(sx>=0 && sx<srcW && sy>=0 && sy<srcH){
+          var srcIdx = (sy*srcW + sx)*4;
+          outData[outIdx]   = srcData[srcIdx];
+          outData[outIdx+1] = srcData[srcIdx+1];
+          outData[outIdx+2] = srcData[srcIdx+2];
+          outData[outIdx+3] = 255;
+        } else {
+          outData[outIdx]=255; outData[outIdx+1]=255; outData[outIdx+2]=255; outData[outIdx+3]=255;
+        }
+      }
+    }
+    warpedCtx.putImageData(outImgData, 0, 0);
+
+    document.getElementById('panelWarped').style.display = 'block';
+    document.getElementById('panelWarped').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  document.getElementById('btnRedo').addEventListener('click', function(){
+    document.getElementById('panelWarped').style.display = 'none';
+    document.getElementById('panelPerspective').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  // ================= Grid slicing + checkbox detection =================
+  function colBoundsPx(){
+    var bounds = [];
+    var accW = 0;
+    COLUMNS.forEach(function(c){
+      var x0 = accW/100 * OUT_W;
+      accW += c.w;
+      var x1 = accW/100 * OUT_W;
+      bounds.push({key:c.key, kind:c.kind, x0:x0, x1:x1});
+    });
+    return bounds;
+  }
+
+  function cropCellCanvas(x0,y0,x1,y1){
+    var w = Math.max(1, Math.round(x1-x0));
+    var h = Math.max(1, Math.round(y1-y0));
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(warpedCanvas, x0, y0, w, h, 0, 0, w, h);
+    return c;
+  }
+
+  // average "darkness" (0=white .. 1=black) within a canvas region, used for checkbox mark detection
+  function darkness(canvas, fx0, fy0, fx1, fy1){
+    var w = canvas.width, h = canvas.height;
+    var x0 = Math.round(fx0*w), y0 = Math.round(fy0*h);
+    var x1 = Math.round(fx1*w), y1 = Math.round(fy1*h);
+    var rw = Math.max(1, x1-x0), rh = Math.max(1, y1-y0);
+    var ctx = canvas.getContext('2d');
+    var data;
+    try{ data = ctx.getImageData(x0, y0, rw, rh).data; }catch(e){ return 0; }
+    var sum = 0, n = 0;
+    for(var i=0;i<data.length;i+=4){
+      var gray = (data[i]+data[i+1]+data[i+2])/3;
+      sum += (255-gray);
+      n++;
+    }
+    return n ? (sum/n)/255 : 0;
+  }
+
+  function pickDarkest(canvas, regions){
+    // regions: [{label, fx0,fy0,fx1,fy1}] — returns label with highest darkness, or null if all look blank
+    var best = null, bestVal = 0;
+    var vals = regions.map(function(r){
+      var d = darkness(canvas, r.fx0, r.fy0, r.fx1, r.fy1);
+      if(d > bestVal){ bestVal = d; best = r.label; }
+      return d;
+    });
+    // require some minimum mark strength & a clear enough margin over the runner-up to trust the guess
+    if(bestVal < 0.12) return null;
+    return best;
+  }
+
+  // ================= OCR (Tesseract.js) =================
+  var ocrWorker = null;
+  async function getWorker(){
+    if(ocrWorker) return ocrWorker;
+    ocrWorker = await Tesseract.createWorker('eng');
+    return ocrWorker;
+  }
+  async function ocrCanvas(canvas, whitelist){
+    try{
+      var worker = await getWorker();
+      if(whitelist){
+        await worker.setParameters({ tessedit_char_whitelist: whitelist });
+      } else {
+        await worker.setParameters({ tessedit_char_whitelist: '' });
+      }
+      var res = await worker.recognize(canvas);
+      return (res && res.data && res.data.text ? res.data.text : '').replace(/\s+/g,' ').trim();
+    }catch(e){
+      console.error('OCR error', e);
+      return '';
+    }
+  }
+
+  var TEXT_WHITELIST = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-/:\'';
+  var NUM_WHITELIST = '0123456789./:-';
+
+  // ================= Date parsing from handwritten "DD/MM HH:MM" =================
+  function parseWrittenDateTime(text){
+    if(!text) return null;
+    var m = text.match(/(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?\D*(\d{1,2})?[:.]?(\d{2})?/);
+    if(!m) return null;
+    var day = parseInt(m[1],10), month = parseInt(m[2],10)-1;
+    if(day<1||day>31||month<0||month>11) return null;
+    var now = new Date();
+    var year = m[3] ? (m[3].length===2 ? 2000+parseInt(m[3],10) : parseInt(m[3],10)) : now.getFullYear();
+    var hh = m[4] ? parseInt(m[4],10) : 9;
+    var mm = m[5] ? parseInt(m[5],10) : 0;
+    if(hh>23) hh = 9;
+    if(mm>59) mm = 0;
+    var d = new Date(year, month, day, hh, mm, 0, 0);
+    if(!m[3] && d.getTime() < now.getTime() - 200*24*3600000){ d.setFullYear(year+1); }
+    return d;
+  }
+  function isoLocal(d){
+    var pad = function(n){return n<10?'0'+n:n;};
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  // ================= Extraction pipeline =================
+  var drafts = [];
+  var cellThumbs = []; // parallel array of {product,desc,start,end,ecr,ocn,notes,rdHours} data-URLs per row, for review thumbnails
+
+  document.getElementById('btnExtract').addEventListener('click', async function(){
+    var rowCount = Math.max(1, Math.min(12, parseInt(document.getElementById('rowCount').value,10) || 1));
+    var progressEl = document.getElementById('progressLine');
+    var btn = document.getElementById('btnExtract');
+    btn.disabled = true;
+
+    var products = loadProducts();
+    var colBounds = colBoundsPx();
+    var rowH = OUT_H / rowCount;
+
+    drafts = [];
+    cellThumbs = [];
+
+    var totalTextCells = rowCount * colBounds.filter(function(c){return c.kind==='text';}).length;
+    var done = 0;
+
+    for(var r=0; r<rowCount; r++){
+      var y0 = r*rowH, y1 = (r+1)*rowH;
+      var rowData = { rd:false, rdHours:0, ecrEnabled:false, ecrNumber:'', ocnEnabled:false, ocnNumber:'', done:false };
+      var thumbs = {};
+
+      for(var ci=0; ci<colBounds.length; ci++){
+        var col = colBounds[ci];
+        if(col.key === 'n') continue;
+        var cellCanvas = cropCellCanvas(col.x0, y0, col.x1, y1);
+
+        if(col.kind === 'priority'){
+          var pLabel = pickDarkest(cellCanvas, [
+            {label:'High',  fx0:0.02, fy0:0.05, fx1:0.14, fy1:0.55},
+            {label:'Medium',fx0:0.36, fy0:0.05, fx1:0.48, fy1:0.55},
+            {label:'Low',   fx0:0.70, fy0:0.05, fx1:0.82, fy1:0.55}
+          ]);
+          rowData.priority = pLabel || 'Medium';
+        } else if(col.kind === 'type'){
+          var tLabel = pickDarkest(cellCanvas, [
+            {label:'NPI',     fx0:0.02, fy0:0.05, fx1:0.14, fy1:0.55},
+            {label:'Support', fx0:0.36, fy0:0.05, fx1:0.48, fy1:0.55},
+            {label:'Other',   fx0:0.70, fy0:0.05, fx1:0.82, fy1:0.55}
+          ]);
+          rowData.type = tLabel || 'Other';
+        } else if(col.kind === 'rd'){
+          var rdLabel = pickDarkest(cellCanvas, [
+            {label:'Yes', fx0:0.02, fy0:0.03, fx1:0.16, fy1:0.42}
+          ]);
+          rowData.rd = !!rdLabel;
+          var hrsCanvas = cropCellCanvas(col.x0, y0 + (y1-y0)*0.5, col.x1, y1);
+          var hrsText = await ocrCanvas(hrsCanvas, NUM_WHITELIST);
+          var hrsNum = parseFloat((hrsText.match(/[\d.]+/)||[])[0]);
+          rowData.rdHours = isNaN(hrsNum) ? 0 : hrsNum;
+          thumbs.rdHours = hrsCanvas.toDataURL();
+          done++; progressEl.textContent = 'Reading cells… ' + done + ' / ' + totalTextCells;
+        } else if(col.kind === 'text'){
+          var whitelist = (col.key==='start'||col.key==='end') ? (NUM_WHITELIST) : TEXT_WHITELIST;
+          var text = await ocrCanvas(cellCanvas, whitelist);
+          thumbs[col.key] = cellCanvas.toDataURL();
+          done++; progressEl.textContent = 'Reading cells… ' + done + ' / ' + totalTextCells;
+
+          if(col.key === 'product'){
+            rowData.product = text ? capitalizeFirst(text) : (products[0]||'');
+          } else if(col.key === 'desc'){
+            rowData.desc = text || '';
+          } else if(col.key === 'start'){
+            var sd = parseWrittenDateTime(text);
+            rowData._startParsed = sd;
+          } else if(col.key === 'end'){
+            var ed = parseWrittenDateTime(text);
+            rowData._endParsed = ed;
+          } else if(col.key === 'ecr'){
+            rowData.ecrEnabled = !!text;
+            rowData.ecrNumber = text ? ('ECR-' + text.replace(/[^0-9A-Za-z]/g,'')) : '';
+          } else if(col.key === 'ocn'){
+            rowData.ocnEnabled = !!text;
+            rowData.ocnNumber = text ? ('OCN-' + text.replace(/[^0-9A-Za-z]/g,'')) : '';
+          } else if(col.key === 'notes'){
+            rowData.notes = text || '';
+          }
+        }
+      }
+
+      // resolve start/end into a sane pair
+      var now = new Date();
+      var start = rowData._startParsed || now;
+      var end = rowData._endParsed || new Date(start.getTime() + 3600000);
+      if(end <= start) end = new Date(start.getTime() + 3600000);
+      rowData.start = isoLocal(start);
+      rowData.end = isoLocal(end);
+      delete rowData._startParsed; delete rowData._endParsed;
+
+      rowData.title = rowData.desc ? rowData.desc : (rowData.product || 'Untitled activity');
+      drafts.push(rowData);
+      cellThumbs.push(thumbs);
+    }
+
+    progressEl.textContent = 'Done — review the ' + drafts.length + ' rows below.';
+    btn.disabled = false;
+    renderDrafts(products);
+    document.getElementById('panelReview').style.display = 'block';
+    document.getElementById('panelReview').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  function capitalizeFirst(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+
+  function fieldRow(label, fieldKey, thumbSrc, inputHtml){
+    return '<div class="dc-field">' +
+      (thumbSrc ? '<img class="cell-thumb" src="'+thumbSrc+'">' : '<div class="cell-thumb"></div>') +
+      '<div class="dc-input-wrap"><label>'+label+'</label>'+inputHtml+'</div>' +
+    '</div>';
+  }
+
+  function renderDrafts(products){
+    var list = document.getElementById('draftList');
+    document.getElementById('reviewCount').textContent = drafts.length + ' rows';
+    list.innerHTML = drafts.map(function(d, idx){
+      var thumbs = cellThumbs[idx] || {};
+      var productOpts = products.map(function(p){
+        return '<option value="'+escapeHtml(p)+'" '+(d.product===p?'selected':'')+'>'+escapeHtml(p)+'</option>';
+      }).join('');
+      var priOpts = ['High','Medium','Low'].map(function(p){
+        return '<option value="'+p+'" '+(d.priority===p?'selected':'')+'>'+p+'</option>';
+      }).join('');
+      var typeOpts = ['NPI','Support','Other'].map(function(t){
+        return '<option value="'+t+'" '+(d.type===t?'selected':'')+'>'+(t==='Support'?'Cross-Team Support':t)+'</option>';
+      }).join('');
+
+      return '<div class="draft-card" data-idx="'+idx+'">' +
+        '<div class="dc-head"><b>Row '+(idx+1)+'</b><button type="button" class="dc-remove" data-idx="'+idx+'" title="Remove">✕</button></div>' +
+        fieldRow('Product', 'product', thumbs.product, '<select data-field="product">'+productOpts+'</select>') +
+        fieldRow('Description', 'desc', thumbs.desc, '<input type="text" data-field="desc" value="'+escapeHtml(d.desc)+'">') +
+        '<div class="dc-row2">' +
+          fieldRow('Start', 'start', thumbs.start, '<input type="datetime-local" data-field="start" value="'+d.start+'">') +
+          fieldRow('End', 'end', thumbs.end, '<input type="datetime-local" data-field="end" value="'+d.end+'">') +
+        '</div>' +
+        '<div class="dc-row2">' +
+          '<div class="dc-input-wrap"><label>Priority (detected from checkbox)</label><select data-field="priority">'+priOpts+'</select></div>' +
+          '<div class="dc-input-wrap"><label>Type (detected from checkbox)</label><select data-field="type">'+typeOpts+'</select></div>' +
+        '</div>' +
+        '<div class="dc-row2">' +
+          '<div class="dc-input-wrap"><label><input type="checkbox" data-field="rd" '+(d.rd?'checked':'')+' style="width:auto; margin-right:6px;">R&amp;D support</label></div>' +
+          fieldRow('R&D Hours', 'rdHours', thumbs.rdHours, '<input type="number" step="0.5" min="0" data-field="rdHours" value="'+(d.rdHours||'')+'">') +
+        '</div>' +
+        '<div class="dc-row2">' +
+          fieldRow('ECR #', 'ecr', thumbs.ecr, '<input type="text" data-field="ecrNumber" value="'+escapeHtml(d.ecrNumber)+'" placeholder="blank = none">') +
+          fieldRow('OCN #', 'ocn', thumbs.ocn, '<input type="text" data-field="ocnNumber" value="'+escapeHtml(d.ocnNumber)+'" placeholder="blank = none">') +
+        '</div>' +
+        fieldRow('Notes', 'notes', thumbs.notes, '<textarea data-field="notes" rows="2" style="width:100%;">'+escapeHtml(d.notes)+'</textarea>') +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('draftList').addEventListener('input', function(e){
+    var card = e.target.closest('.draft-card');
+    if(!card) return;
+    var idx = parseInt(card.dataset.idx,10);
+    var field = e.target.dataset.field;
+    if(!field || !drafts[idx]) return;
+    var val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    drafts[idx][field] = val;
+  });
+  document.getElementById('draftList').addEventListener('change', function(e){
+    var card = e.target.closest('.draft-card');
+    if(!card) return;
+    var idx = parseInt(card.dataset.idx,10);
+    var field = e.target.dataset.field;
+    if(!field || !drafts[idx]) return;
+    var val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    drafts[idx][field] = val;
+  });
+  document.getElementById('draftList').addEventListener('click', function(e){
+    if(e.target.classList.contains('dc-remove')){
+      var idx = parseInt(e.target.dataset.idx,10);
+      drafts.splice(idx,1);
+      cellThumbs.splice(idx,1);
+      renderDrafts(loadProducts());
+    }
+  });
+
+  document.getElementById('btnCommit').addEventListener('click', function(){
+    if(drafts.length === 0) return;
+    var tasks = loadTasks();
+    var products = loadProducts();
+
+    var newProducts = [];
+    drafts.forEach(function(d){
+      if(d.product && products.indexOf(d.product) === -1 && newProducts.indexOf(d.product) === -1){
+        newProducts.push(d.product);
+      }
+    });
+    if(newProducts.length){
+      products = products.concat(newProducts);
+      saveProducts(products);
+    }
+
+    drafts.forEach(function(d){
+      tasks.push({
+        id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        title: d.title || d.product || 'Untitled activity',
+        desc: d.desc || '',
+        product: d.product,
+        priority: d.priority || 'Medium',
+        start: d.start,
+        end: d.end,
+        type: d.type || 'Other',
+        rd: !!d.rd,
+        rdHours: d.rd ? (parseFloat(d.rdHours) || 0) : 0,
+        ecrEnabled: !!d.ecrEnabled,
+        ecrNumber: d.ecrNumber || '',
+        ocnEnabled: !!d.ocnEnabled,
+        ocnNumber: d.ocnNumber || '',
+        notes: (d.notes || '') + (d.notes ? ' ' : '') + '[Added via Photo Import]',
+        done: !!d.done
+      });
+    });
+    saveTasks(tasks);
+
+    alert(drafts.length + ' activit' + (drafts.length===1?'y':'ies') + ' added to the Activity Register. Nothing existing was changed.');
+    drafts = []; cellThumbs = [];
+    document.getElementById('draftList').innerHTML = '';
+    document.getElementById('panelReview').style.display = 'none';
+    document.getElementById('panelPerspective').style.display = 'none';
+    document.getElementById('panelWarped').style.display = 'none';
+    fileInput.value = '';
+  });
+
+})();
+</script>
+</body>
+</html>
