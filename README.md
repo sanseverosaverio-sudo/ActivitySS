@@ -4,6 +4,16 @@ Dashboard locale per la gestione delle attività quotidiane: elenco attività, d
 
 Nessun server, nessun database, nessun account: è un singolo file HTML autosufficiente.
 
+## Archiviazione ed eliminazione
+
+Attività, componenti e fornitori (nel tab New Products) hanno un pulsante **Archive/Restore**: archiviare nasconde la voce dalle liste di default (senza cancellarla) — usa la casella **"Show Archived"** vicino ai filtri per rivederle in qualsiasi momento. È reversibile ("Restore" per farla riapparire).
+
+Esiste anche l'**eliminazione permanente** (pulsante Delete/✕ separato da Archive), che invece cancella davvero il record (e per i componenti/fornitori, anche i file allegati in IndexedDB).
+
+**Gestione prodotti**: dal footer, pulsante **"Manage Products…"**, apre un pannello dove ogni prodotto (inclusi quelli già presenti come Product A/Alpha/Beta/ecc.) può essere:
+- **Archiviato** — sparisce dalle liste di creazione nuove attività/componenti, ma resta filtrabile nei dati storici
+- **Eliminato permanentemente** — anche se già usato da attività/componenti esistenti; in tal caso viene mostrato un avviso con quante attività/componenti lo referenziano, spiegando che quei record manterranno il nome del prodotto come testo ma quel valore non sarà più selezionabile/filtrabile come voce a sé nella lista prodotti
+
 ## Contenuto del pacchetto
 
 ```

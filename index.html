@@ -1094,6 +1094,20 @@
   .sup-section-body{ padding:0 10px 10px; }
   .sup-section .supplier-status-row:first-of-type{ margin-top:2px; }
 
+  .product-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border:1px solid var(--line); background:var(--panel-2);
+    padding:10px 12px; margin-bottom:8px;
+  }
+  .product-row.is-archived{ opacity:.6; border-style:dashed; }
+  .product-row .pr-name{ font-family:'Space Grotesk', sans-serif; font-size:13px; }
+  .product-row .pr-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+  .product-row .pr-actions{ display:flex; gap:6px; flex-shrink:0; }
+  .task-card.is-archived{ opacity:.6; }
+  .task-card.is-archived .stripe{ background:var(--muted-2) !important; }
+  .component-card.is-archived{ opacity:.55; border-style:dashed; }
+  .supplier-card.is-archived{ opacity:.6; border-style:dashed; }
+
   @media (max-width: 640px){
     .voice-modal-overlay{padding:0;}
     .voice-modal{margin-bottom:0; min-height:100vh;}
@@ -1158,6 +1172,7 @@
                 <input type="text" id="f_newProduct" placeholder="New product name">
                 <button type="button" class="btn btn-small" id="btnAddProduct">Add</button>
               </div>
+              <button type="button" class="btn btn-small btn-ghost" id="btnManageProducts" style="margin-top:8px;">Manage Products…</button>
             </div>
 
             <div class="field">
@@ -1257,6 +1272,9 @@
             <option value="done">Completed</option>
           </select>
           <button class="btn btn-small btn-ghost" id="btnResetFilters">Reset Filters</button>
+          <label style="display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); cursor:pointer; white-space:nowrap;">
+            <input type="checkbox" id="filterShowArchived" style="width:auto;"> Show Archived
+          </label>
         </div>
         <div id="taskList"></div>
       </div>
@@ -1428,8 +1446,11 @@
     <div class="panel">
       <div class="panel-head">
         <h2>Components &amp; Suppliers</h2>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:12px; align-items:center;">
           <select id="npiFilterProduct" style="max-width:160px;"><option value="">All Products</option></select>
+          <label style="display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); cursor:pointer; white-space:nowrap;">
+            <input type="checkbox" id="npiShowArchived" style="width:auto;"> Show Archived
+          </label>
         </div>
       </div>
       <div class="panel-body">
@@ -1457,6 +1478,19 @@
     <a class="btn btn-small btn-ghost" href="photo-import.html" style="text-decoration:none; display:inline-block;">📷 Photo Import</a>
   </div>
 </footer>
+
+<div class="voice-modal-overlay" id="manageProductsModal">
+  <div class="voice-modal">
+    <div class="voice-modal-head">
+      <h2>Manage Products</h2>
+      <button type="button" class="btn btn-small btn-ghost" id="btnCloseManageProducts">Close</button>
+    </div>
+    <div class="voice-modal-body">
+      <div class="note">Archiving hides a product from the "New Activity" and "New Component" creation forms, but keeps every existing activity, component, and record exactly as it is — fully reversible anytime. Deleting is permanent and only allowed for products with no activities or components attached.</div>
+      <div id="manageProductsList"></div>
+    </div>
+  </div>
+</div>
 
 <div class="voice-modal-overlay" id="voiceModal">
   <div class="voice-modal">
@@ -1497,6 +1531,7 @@
 
   var LS_TASKS = 'engops_tasks_v1';
   var LS_PRODUCTS = 'engops_products_v1';
+  var LS_ARCHIVED_PRODUCTS = 'engops_archived_products_v1';
 
   function loadTasks(){
     try{ return JSON.parse(localStorage.getItem(LS_TASKS)) || []; }catch(e){ return []; }
@@ -1515,9 +1550,28 @@
   function saveProducts(products){
     localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
   }
+  function loadArchivedProducts(){
+    try{ return JSON.parse(localStorage.getItem(LS_ARCHIVED_PRODUCTS)) || []; }catch(e){ return []; }
+  }
+  function saveArchivedProducts(arr){ localStorage.setItem(LS_ARCHIVED_PRODUCTS, JSON.stringify(arr)); }
 
   var tasks = loadTasks();
   var products = loadProducts();
+  var archivedProducts = loadArchivedProducts();
+
+  function getActiveProducts(){
+    return products.filter(function(p){ return archivedProducts.indexOf(p) === -1; });
+  }
+  // Ensures a specific value (e.g. the product on a task/component being edited)
+  // stays selectable even if it has since been archived, so editing never
+  // silently discards the existing value.
+  function activeProductsIncluding(value){
+    var list = getActiveProducts();
+    if(value && list.indexOf(value) === -1 && products.indexOf(value) !== -1){
+      list = list.concat([value]);
+    }
+    return list;
+  }
   var editingId = null;
   var selectedIds = new Set();
 
@@ -1549,7 +1603,7 @@
     var repSel = document.getElementById('repFilterProduct');
     var prev = sel.value;
     sel.innerHTML = '';
-    products.forEach(function(p){
+    activeProductsIncluding(prev).forEach(function(p){
       var o = document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o);
     });
     if(products.includes(prev)) sel.value = prev;
@@ -1557,14 +1611,14 @@
     var prevF = filterSel.value;
     filterSel.innerHTML = '<option value="">All Products</option>';
     products.forEach(function(p){
-      var o = document.createElement('option'); o.value=p; o.textContent=p; filterSel.appendChild(o);
+      var o = document.createElement('option'); o.value=p; o.textContent=p + (archivedProducts.indexOf(p)!==-1?' (archived)':''); filterSel.appendChild(o);
     });
     filterSel.value = prevF && products.includes(prevF) ? prevF : '';
 
     var prevR = repSel.value;
     repSel.innerHTML = '<option value="">All Products</option>';
     products.forEach(function(p){
-      var o = document.createElement('option'); o.value=p; o.textContent=p; repSel.appendChild(o);
+      var o = document.createElement('option'); o.value=p; o.textContent=p + (archivedProducts.indexOf(p)!==-1?' (archived)':''); repSel.appendChild(o);
     });
     repSel.value = prevR && products.includes(prevR) ? prevR : '';
 
@@ -1572,7 +1626,7 @@
     if(cProdSel){
       var prevC = cProdSel.value;
       cProdSel.innerHTML = '';
-      products.forEach(function(p){
+      activeProductsIncluding(prevC).forEach(function(p){
         var o = document.createElement('option'); o.value=p; o.textContent=p; cProdSel.appendChild(o);
       });
       if(products.includes(prevC)) cProdSel.value = prevC;
@@ -1582,7 +1636,7 @@
       var prevN = npiFilterSel.value;
       npiFilterSel.innerHTML = '<option value="">All Products</option>';
       products.forEach(function(p){
-        var o = document.createElement('option'); o.value=p; o.textContent=p; npiFilterSel.appendChild(o);
+        var o = document.createElement('option'); o.value=p; o.textContent=p + (archivedProducts.indexOf(p)!==-1?' (archived)':''); npiFilterSel.appendChild(o);
       });
       npiFilterSel.value = prevN && products.includes(prevN) ? prevN : '';
     }
@@ -1600,6 +1654,74 @@
     }
     document.getElementById('f_product').value = val;
     input.value = '';
+  });
+
+  function productUsageCounts(name){
+    var taskCount = tasks.filter(function(t){ return t.product === name; }).length;
+    var compCount = components.filter(function(c){ return c.product === name; }).length;
+    return { taskCount: taskCount, compCount: compCount };
+  }
+
+  function renderManageProductsList(){
+    var el = document.getElementById('manageProductsList');
+    if(products.length === 0){
+      el.innerHTML = '<div class="empty-state">No products yet.</div>';
+      return;
+    }
+    el.innerHTML = products.map(function(p){
+      var isArchived = archivedProducts.indexOf(p) !== -1;
+      var usage = productUsageCounts(p);
+      return '<div class="product-row'+(isArchived?' is-archived':'')+'" data-product="'+escapeHtml(p)+'">' +
+        '<div><div class="pr-name">'+escapeHtml(p)+(isArchived?' <span style="color:var(--muted-2); font-size:11px;">(archived)</span>':'')+'</div>' +
+        '<div class="pr-meta">'+usage.taskCount+' activit'+(usage.taskCount===1?'y':'ies')+' · '+usage.compCount+' component'+(usage.compCount===1?'':'s')+'</div></div>' +
+        '<div class="pr-actions">' +
+          '<button type="button" class="btn btn-small pr-archive-toggle">'+(isArchived?'Unarchive':'Archive')+'</button>' +
+          '<button type="button" class="btn btn-small btn-ghost pr-delete">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('btnManageProducts').addEventListener('click', function(){
+    renderManageProductsList();
+    document.getElementById('manageProductsModal').classList.add('show');
+  });
+  document.getElementById('btnCloseManageProducts').addEventListener('click', function(){
+    document.getElementById('manageProductsModal').classList.remove('show');
+  });
+  document.getElementById('manageProductsList').addEventListener('click', function(e){
+    var row = e.target.closest('.product-row');
+    if(!row) return;
+    var name = row.dataset.product;
+
+    if(e.target.classList.contains('pr-archive-toggle')){
+      var idx = archivedProducts.indexOf(name);
+      if(idx === -1) archivedProducts.push(name); else archivedProducts.splice(idx,1);
+      saveArchivedProducts(archivedProducts);
+      renderManageProductsList();
+      renderProductOptions();
+      renderNPI();
+      return;
+    }
+    if(e.target.classList.contains('pr-delete')){
+      var usage = productUsageCounts(name);
+      var msg = 'Permanently delete product "'+name+'"? This cannot be undone.';
+      if(usage.taskCount > 0 || usage.compCount > 0){
+        msg += '\n\nIt is currently used by ' + usage.taskCount + ' activit' + (usage.taskCount===1?'y':'ies') +
+          ' and ' + usage.compCount + ' component' + (usage.compCount===1?'':'s') + '. ' +
+          'Those will keep "' + name + '" as their product name, but it will no longer appear in product lists or filters — ' +
+          'you won\'t be able to select it again for new activities/components, and it becomes harder to filter down to just these records.';
+      }
+      if(!confirm(msg)) return;
+      products = products.filter(function(p){ return p !== name; });
+      archivedProducts = archivedProducts.filter(function(p){ return p !== name; });
+      saveProducts(products);
+      saveArchivedProducts(archivedProducts);
+      renderManageProductsList();
+      renderProductOptions();
+      renderNPI();
+      return;
+    }
   });
 
   var selectedPriority = 'Medium';
@@ -1789,8 +1911,10 @@
     var ft = document.getElementById('filterType').value;
     var fpr = document.getElementById('filterPriority').value;
     var fs = document.getElementById('filterStatus').value;
+    var showArchived = document.getElementById('filterShowArchived').checked;
 
     var filtered = tasks.filter(function(t){
+      if(!showArchived && t.archived) return false;
       if(fp && t.product !== fp) return false;
       if(ft && t.type !== ft) return false;
       if(fpr && t.priority !== fpr) return false;
@@ -1799,7 +1923,7 @@
     }).sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
 
     document.getElementById('listCount').textContent = filtered.length + ' records';
-    document.getElementById('metaTotal').textContent = tasks.length;
+    document.getElementById('metaTotal').textContent = tasks.filter(function(t){ return !t.archived; }).length;
 
     if(filtered.length === 0){
       listEl.innerHTML = '<div class="empty-state">No activities found. Add your first activity using the form on the left.</div>';
@@ -1812,11 +1936,12 @@
       badges += '<span class="badge product">'+escapeHtml(t.product)+'</span>';
       badges += '<span class="badge">'+t.type+'</span>';
       badges += '<span class="badge status-'+status+'">'+statusLabel(status)+'</span>';
+      if(t.archived) badges += '<span class="badge" style="border-color:var(--muted-2); color:var(--muted-2);">ARCHIVED</span>';
       if(t.rd) badges += '<span class="badge rd">R&amp;D'+(t.rdHours ? ' '+t.rdHours+'h' : '')+'</span>';
       if(t.ecrEnabled) badges += '<span class="badge ecr">ECR '+escapeHtml(t.ecrNumber||'—')+'</span>';
       if(t.ocnEnabled) badges += '<span class="badge ocn">OCN '+escapeHtml(t.ocnNumber||'—')+'</span>';
 
-      return '<div class="task-card pri-'+t.priority+'">'+
+      return '<div class="task-card pri-'+t.priority+(t.archived?' is-archived':'')+'">'+
         '<div class="stripe"></div>'+
         '<div class="task-main">'+
           '<div class="task-top">'+
@@ -1834,6 +1959,7 @@
         '</div>'+
         '<div class="task-actions">'+
           '<button class="btn btn-small" onclick="EngOps.edit(\''+t.id+'\')">Edit</button>'+
+          '<button class="btn btn-small btn-ghost" onclick="EngOps.archive(\''+t.id+'\')">'+(t.archived?'Restore':'Archive')+'</button>'+
           '<button class="btn btn-small btn-ghost" onclick="EngOps.remove(\''+t.id+'\')">Delete</button>'+
         '</div>'+
       '</div>';
@@ -1847,13 +1973,24 @@
     });
   }
 
-  ['filterProduct','filterType','filterPriority','filterStatus'].forEach(function(id){
+  function archiveTask(id){
+    var t = tasks.find(function(x){ return x.id === id; });
+    if(!t) return;
+    t.archived = !t.archived;
+    saveTasks(tasks);
+    renderList();
+    renderDashboard();
+    renderSelectList();
+  }
+
+  ['filterProduct','filterType','filterPriority','filterStatus','filterShowArchived'].forEach(function(id){
     document.getElementById(id).addEventListener('change', renderList);
   });
   document.getElementById('btnResetFilters').addEventListener('click', function(){
     ['filterProduct','filterType','filterPriority','filterStatus'].forEach(function(id){
       document.getElementById(id).value = '';
     });
+    document.getElementById('filterShowArchived').checked = false;
     renderList();
   });
 
@@ -1921,6 +2058,7 @@
     var to = document.getElementById('dashTo').value;
 
     var filtered = tasks.filter(function(t){
+      if(t.archived) return false;
       var s = new Date(t.start);
       if(from && s < new Date(from)) return false;
       if(to && s > new Date(to + 'T23:59:59')) return false;
@@ -2022,6 +2160,7 @@
     var fs = document.getElementById('repFilterStatus').value;
 
     var filtered = tasks.filter(function(t){
+      if(t.archived) return false;
       if(fp && t.product !== fp) return false;
       if(fs && taskStatus(t) !== fs) return false;
       return true;
@@ -2871,13 +3010,13 @@
   }
 
   function computeProductAggregates(productName){
-    var comps = components.filter(function(c){ return c.product === productName; });
+    var comps = components.filter(function(c){ return c.product === productName && !c.archived; });
     var totalComps = comps.length;
     var quotedComps = comps.filter(function(c){
-      return c.suppliers.some(function(s){ return s.quotationStatus === 'Selected'; });
+      return c.suppliers.some(function(s){ return !s.archived && s.quotationStatus === 'Selected'; });
     }).length;
     var validatedComps = comps.filter(function(c){
-      return c.suppliers.some(function(s){ return s.samplesValidation === 'Passed'; });
+      return c.suppliers.some(function(s){ return !s.archived && s.samplesValidation === 'Passed'; });
     }).length;
     return {
       totalComps: totalComps, quotedComps: quotedComps, validatedComps: validatedComps,
@@ -2893,11 +3032,12 @@
   function renderReadinessGrid(){
     var el = document.getElementById('npiReadinessGrid');
     if(!el) return;
-    if(products.length === 0){
-      el.innerHTML = '<div class="empty-state">No products yet — add one from the Activity List tab first.</div>';
+    var activeList = getActiveProducts();
+    if(activeList.length === 0){
+      el.innerHTML = '<div class="empty-state">No active products — add one from the Activity List tab, or unarchive one via Manage Products.</div>';
       return;
     }
-    el.innerHTML = products.map(function(p){
+    el.innerHTML = activeList.map(function(p){
       var agg = computeProductAggregates(p);
       var st = productStatus[p] || DEFAULT_PRODUCT_STATUS;
       return '<div class="npi-product-card">' +
@@ -2941,6 +3081,7 @@
 
   function newComponentDefaults(){
     return {
+      archived: false,
       type: 'Mechanical', partNumber: '', description: '', source: '', legacyPN: '',
       dfmUpdates: '', lastUpdate: '', ecnNumber: '', qualityCritical: false,
       qty1kit: '', qty5kit: '', qty10kit: '', inventory: '',
@@ -2950,7 +3091,7 @@
   function newSupplierDefaults(){
     return {
       id: 'sup_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-      name: 'New Supplier',
+      name: 'New Supplier', archived: false,
       mfgName: '', mfgPartNumber: '', reseller: '', makeBuy: 'Buy CHN', contactForQuote: '',
       moq: '', unitCost: '', totalCost: '', leadTimeWeeks: '',
       quotationStatus: 'Not Requested',
@@ -2987,6 +3128,9 @@
   document.getElementById('npiFilterProduct').addEventListener('change', function(){
     renderComponentList();
   });
+  document.getElementById('npiShowArchived').addEventListener('change', function(){
+    renderComponentList();
+  });
 
   function fileSizeLabel(bytes){
     if(bytes < 1024) return bytes + ' B';
@@ -3010,9 +3154,11 @@
   }
 
   function supplierCardHTML(compId, s){
-    return '<div class="supplier-card" data-comp-id="'+compId+'" data-supplier-id="'+s.id+'">' +
+    return '<div class="supplier-card'+(s.archived?' is-archived':'')+'" data-comp-id="'+compId+'" data-supplier-id="'+s.id+'">' +
       '<div class="supplier-head">' +
         '<input type="text" class="supplier-name-input" data-field="name" value="'+escapeHtml(s.name)+'" placeholder="Supplier name">' +
+        (s.archived ? '<span style="font-family:\'IBM Plex Mono\',monospace; font-size:9px; text-transform:uppercase; color:var(--muted-2); margin-right:6px;">Archived</span>' : '') +
+        '<button type="button" class="btn btn-small supplier-archive-toggle" style="margin-right:6px;">'+(s.archived?'Restore':'Archive')+'</button>' +
         '<button type="button" class="dc-remove supplier-remove" title="Remove supplier">✕</button>' +
       '</div>' +
       '<div class="supplier-status-row">' +
@@ -3086,10 +3232,13 @@
   }
 
   function componentCardHTML(c){
-    return '<div class="component-card" data-comp-id="'+c.id+'">' +
+    return '<div class="component-card'+(c.archived?' is-archived':'')+'" data-comp-id="'+c.id+'">' +
       '<div class="component-head">' +
-        '<div><h3>'+escapeHtml(c.name)+'</h3><div class="comp-meta">'+escapeHtml(c.product)+(c.partNumber?' · '+escapeHtml(c.partNumber):'')+' · '+c.suppliers.length+' supplier'+(c.suppliers.length===1?'':'s')+'</div></div>' +
-        '<button type="button" class="dc-remove component-remove" title="Delete component">✕</button>' +
+        '<div><h3>'+escapeHtml(c.name)+(c.archived?' <span style="color:var(--muted-2); font-size:11px; font-family:\'IBM Plex Mono\',monospace; text-transform:uppercase;">(archived)</span>':'')+'</h3><div class="comp-meta">'+escapeHtml(c.product)+(c.partNumber?' · '+escapeHtml(c.partNumber):'')+' · '+c.suppliers.length+' supplier'+(c.suppliers.length===1?'':'s')+'</div></div>' +
+        '<div class="pr-actions">' +
+          '<button type="button" class="btn btn-small component-archive-toggle">'+(c.archived?'Restore':'Archive')+'</button>' +
+          '<button type="button" class="dc-remove component-remove" title="Delete component">✕</button>' +
+        '</div>' +
       '</div>' +
       '<div class="component-body">' +
         '<details class="sup-section" open>' +
@@ -3122,7 +3271,9 @@
           '</div>' +
         '</details>' +
         (c.notes ? '<div class="component-notes">'+escapeHtml(c.notes)+'</div>' : '') +
-        '<div class="supplier-list">' + c.suppliers.map(function(s){ return supplierCardHTML(c.id, s); }).join('') + '</div>' +
+        '<div class="supplier-list">' + c.suppliers.filter(function(s){
+          return document.getElementById('npiShowArchived').checked || !s.archived;
+        }).map(function(s){ return supplierCardHTML(c.id, s); }).join('') + '</div>' +
         '<div class="comp-btn-row"><button type="button" class="btn btn-small add-supplier-btn">+ Add Supplier</button></div>' +
       '</div>' +
     '</div>';
@@ -3132,7 +3283,11 @@
     var el = document.getElementById('componentList');
     if(!el) return;
     var filterProduct = document.getElementById('npiFilterProduct').value;
-    var list = components.filter(function(c){ return !filterProduct || c.product === filterProduct; });
+    var showArchived = document.getElementById('npiShowArchived').checked;
+    var list = components.filter(function(c){
+      if(!showArchived && c.archived) return false;
+      return !filterProduct || c.product === filterProduct;
+    });
     if(list.length === 0){
       el.innerHTML = '<div class="empty-state">No components tracked yet. Add one above to start tracking RFQs.</div>';
       return;
@@ -3145,6 +3300,18 @@
 
   document.getElementById('componentList').addEventListener('click', function(e){
     var target = e.target;
+
+    if(target.classList.contains('component-archive-toggle')){
+      var archCard = target.closest('.component-card');
+      var archComp = findComponent(archCard.dataset.compId);
+      if(archComp){
+        archComp.archived = !archComp.archived;
+        saveComponents(components);
+        renderComponentList();
+        renderReadinessGrid();
+      }
+      return;
+    }
 
     if(target.classList.contains('component-remove')){
       var card = target.closest('.component-card');
@@ -3171,9 +3338,22 @@
       return;
     }
 
+    if(target.classList.contains('supplier-archive-toggle')){
+      var archSCard = target.closest('.supplier-card');
+      var archComp2 = findComponent(archSCard.dataset.compId);
+      var archSup = findSupplierIn(archComp2, archSCard.dataset.supplierId);
+      if(archSup){
+        archSup.archived = !archSup.archived;
+        saveComponents(components);
+        renderComponentList();
+        renderReadinessGrid();
+      }
+      return;
+    }
+
     if(target.classList.contains('supplier-remove')){
       var sCard = target.closest('.supplier-card');
-      if(!confirm('Remove this supplier and its files?')) return;
+      if(!confirm('Permanently remove this supplier and its files? This cannot be undone — use Archive instead if you just want to hide it.')) return;
       var comp3 = findComponent(sCard.dataset.compId);
       var sup3 = findSupplierIn(comp3, sCard.dataset.supplierId);
       if(sup3){ (sup3.files||[]).forEach(function(f){ dbDelete(f.id).catch(function(){}); }); }
@@ -3277,7 +3457,7 @@
     renderComponentList();
   }
 
-  window.EngOps = { edit: editTask, remove: deleteTask };
+  window.EngOps = { edit: editTask, remove: deleteTask, archive: archiveTask };
 
   // ---------- sample data (for demo / onboarding purposes) ----------
   function isoLocal(d){
