@@ -11,18 +11,21 @@
     --bg:#0e131a;
     --panel:#161d27;
     --panel-2:#1b2430;
-    --line:#28323e;
-    --line-soft:#1f2833;
-    --text:#e7ecf2;
-    --muted:#8996a6;
-    --muted-2:#5c6879;
-    --accent:#ff8b3d;
-    --accent-dim:#7a4826;
-    --teal:#43c6ac;
-    --teal-dim:#245349;
-    --high:#e2574c;
-    --medium:#eab308;
-    --low:#43c6ac;
+    --line:#37434f;
+    --line-soft:#2a3440;
+    --text:#f0f4f8;
+    /* Contrast-checked against --panel (WCAG AA needs 4.5:1 for body text):
+       --muted 9.2:1, --muted-2 5.9:1, --accent 8.3:1, --teal 9.8:1.
+       The previous --muted-2 sat at 3.0:1 and was unreadable in bright rooms. */
+    --muted:#b4c0ce;
+    --muted-2:#8d9aab;
+    --accent:#ff9d5c;
+    --accent-dim:#8f5730;
+    --teal:#5fd9c0;
+    --teal-dim:#2d6357;
+    --high:#f27166;
+    --medium:#f0c33c;
+    --low:#5fd9c0;
     --radius:2px;
   }
   *{box-sizing:border-box;}
@@ -137,7 +140,7 @@
   }
   .tab .idx{
     color:var(--muted-2);
-    font-size:10px;
+    font-size:11px;
   }
   .tab.active{
     color:var(--text);
@@ -239,7 +242,7 @@
   }
   .panel-head .tag{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     color:var(--muted-2);
   }
   .panel-body{padding:18px;}
@@ -248,7 +251,7 @@
   .field label{
     display:block;
     font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
+    font-size:11.5px;
     letter-spacing:.06em;
     text-transform:uppercase;
     color:var(--muted);
@@ -341,7 +344,7 @@
   }
   .btn-primary:hover{background:#ffa15e;}
   .btn-ghost{background:transparent;}
-  .btn-small{padding:5px 9px; font-size:10.5px;}
+  .btn-small{padding:5px 9px; font-size:11.5px;}
   .btn-row{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
 
   .filters{
@@ -389,7 +392,7 @@
   .task-title.done{text-decoration:line-through; color:var(--muted);}
   .badge{
     font-family:'IBM Plex Mono', monospace;
-    font-size:9.5px;
+    font-size:11px;
     text-transform:uppercase;
     letter-spacing:.05em;
     padding:2px 7px;
@@ -424,10 +427,90 @@
   .task-notes{
     margin-top:8px;
     font-size:11.5px;
-    color:var(--muted-2);
+    color:var(--muted);
     border-left:2px solid var(--line);
     padding-left:8px;
   }
+
+  /* ---------- progress ---------- */
+  .progress-value{ color:var(--accent); font-weight:600; }
+  .progress-slider{
+    width:100%; -webkit-appearance:none; appearance:none;
+    height:6px; border-radius:3px; background:var(--line);
+    outline:none; padding:0; border:none; margin:2px 0 4px;
+  }
+  .progress-slider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--accent); cursor:pointer; border:2px solid var(--panel);
+  }
+  .progress-slider::-moz-range-thumb{
+    width:20px; height:20px; border-radius:50%;
+    background:var(--accent); cursor:pointer; border:2px solid var(--panel);
+  }
+  .field-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; color:var(--muted-2); line-height:1.5; margin-top:2px;
+  }
+  .task-progress{ margin-top:10px; }
+  .tp-bar{
+    height:7px; background:var(--line-soft); border-radius:4px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .tp-fill{ height:100%; background:var(--accent); transition:width .2s; }
+  .tp-fill.tp-done{ background:var(--teal); }
+  .tp-labels{
+    display:flex; gap:10px; align-items:center; margin-top:4px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+  }
+  .tp-pct{ color:var(--text); font-weight:500; }
+  .task-variance{ font-size:10.5px; }
+  .var-ahead{ color:var(--teal); }
+  .var-behind{ color:var(--high); }
+  .var-ontrack{ color:var(--muted-2); }
+
+  .task-issues{
+    margin-top:10px; border-left:2px solid var(--high);
+    background:rgba(242,113,102,.07); padding:8px 10px;
+  }
+  .ti-row{ font-size:11.5px; color:var(--muted); line-height:1.55; }
+  .ti-row + .ti-row{ margin-top:4px; }
+  .ti-row b{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    text-transform:uppercase; color:var(--high); letter-spacing:.03em; margin-right:5px;
+  }
+
+  .form-section{
+    border:1px solid var(--line); border-radius:var(--radius);
+    margin-bottom:14px; background:var(--panel-2);
+  }
+  .form-section summary{
+    padding:10px 12px; cursor:pointer; user-select:none;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--accent);
+  }
+  .form-section summary:hover{ color:var(--text); }
+  .form-section-body{ padding:0 12px 6px; }
+
+  .ri-progress{ margin-top:8px; }
+  .ri-progress-labels{
+    display:flex; gap:10px; align-items:center; margin-top:4px;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+  }
+  .ri-var{ font-size:10.5px; }
+  .ri-issue{
+    margin-top:7px; padding:6px 8px; border-left:2px solid var(--high);
+    background:rgba(242,113,102,.07); font-size:11.5px; color:var(--muted); line-height:1.5;
+  }
+  .ri-issue b{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    text-transform:uppercase; color:var(--high); margin-right:5px;
+  }
+  .ri-timelost{
+    display:inline-block; margin-left:6px;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--high);
+  }
+  .stat-box .num.num-warn{ color:var(--high); }
   .task-actions{
     padding:14px 16px;
     display:flex;
@@ -464,7 +547,7 @@
   }
   .stat-box .lbl{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     text-transform:uppercase;
     letter-spacing:.06em;
     color:var(--muted);
@@ -513,7 +596,7 @@
     padding:8px 18px;
     color:var(--muted);
     text-transform:uppercase;
-    font-size:10px;
+    font-size:11px;
     letter-spacing:.05em;
     border-bottom:1px solid var(--line);
   }
@@ -574,7 +657,7 @@
   }
   .select-row .sr-meta{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     color:var(--muted-2);
     margin-top:3px;
     display:flex;
@@ -647,7 +730,7 @@
   }
   .report-col-head .rc-sub{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
+    font-size:11.5px;
     color:var(--muted-2);
     margin-top:4px;
   }
@@ -664,7 +747,7 @@
   }
   .report-item .ri-meta{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     color:var(--muted-2);
     display:flex;
     gap:8px;
@@ -695,18 +778,25 @@
     background:var(--panel);
     z-index:2;
   }
-  .gantt-label-spacer{height:28px;}
+  .gantt-label-spacer{height:32px;}
   .gantt-label{
-    height:32px;
+    height:40px;
     display:flex;
-    align-items:center;
-    font-size:11.5px;
+    flex-direction:column;
+    justify-content:center;
+    font-size:12px;
     color:var(--text);
-    white-space:nowrap;
     overflow:hidden;
-    text-overflow:ellipsis;
-    padding-right:8px;
-    border-bottom:1px solid var(--line-soft);
+    padding-right:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .gantt-label .gl-title{
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-weight:500; line-height:1.3;
+  }
+  .gantt-label .gl-sub{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .gantt-tracks{
     flex:1;
@@ -715,29 +805,59 @@
   }
   .gantt-axis{
     position:relative;
-    height:28px;
-    border-bottom:1px solid var(--line);
+    height:32px;
+    border-bottom:2px solid var(--line);
+  }
+  .gantt-grid{
+    position:absolute; top:32px; bottom:0; left:0; right:0;
+    pointer-events:none; z-index:0;
+  }
+  .gantt-gridline{
+    position:absolute; top:0; bottom:0; width:0;
+    border-left:1px solid var(--line-soft);
   }
   .gantt-tick{
     position:absolute;
     bottom:6px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:9.5px;
+    font-size:11px;
     color:var(--muted-2);
     white-space:nowrap;
   }
   .gantt-track-row{
-    height:32px;
+    height:40px;
     position:relative;
-    border-bottom:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line);
   }
   .gantt-bar{
     position:absolute;
-    top:7px;
-    height:18px;
+    top:8px;
+    height:24px;
     border-radius:3px;
-    min-width:4px;
-    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+    min-width:5px;
+    box-shadow:0 0 0 1px rgba(0,0,0,.35);
+    overflow:hidden;
+    z-index:1;
+  }
+  .gb-progress{
+    position:absolute; top:0; left:0; bottom:0;
+    background:rgba(0,0,0,.42);
+  }
+  .gb-label{
+    position:absolute; top:0; left:6px; right:4px; height:100%;
+    display:flex; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:600;
+    color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.75);
+    pointer-events:none;
+  }
+  .gb-outside{
+    position:absolute; top:8px; height:24px;
+    display:flex; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color:var(--muted); white-space:nowrap; z-index:1;
+  }
+  .lg-dot-hatch{
+    background:linear-gradient(90deg, #4f8fd6 0 50%, #29527a 50% 100%) !important;
   }
   .gantt-today{
     position:absolute;
@@ -752,7 +872,7 @@
     top:-2px;
     left:4px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:9px;
+    font-size:10.5px;
     text-transform:uppercase;
     letter-spacing:.05em;
     color:var(--accent);
@@ -769,7 +889,7 @@
     align-items:center;
     gap:6px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
+    font-size:11.5px;
     color:var(--muted);
     text-transform:uppercase;
     letter-spacing:.04em;
@@ -796,10 +916,37 @@
     .donut-center-val{fill:#111 !important;}
     .donut-center-lbl{fill:#555 !important;}
     circle[stroke="#28323e"]{stroke:#ccc !important;}
+    /* --- Gantt on paper/PDF ---
+       Browsers strip background colours by default when printing, which would
+       render every bar invisible. print-color-adjust forces them to print. */
     .gantt-labels{background:#fff !important;}
     .gantt-label{color:#111;}
-    .gantt-tick{color:#666;}
-    .gantt-legend .lg-row{color:#444;}
+    .gantt-label .gl-sub{color:#555;}
+    .gantt-tick{color:#444; font-weight:600;}
+    .gantt-legend .lg-row{color:#333;}
+    .gantt-wrap{overflow:visible !important;}
+    .gantt-tracks{min-width:0 !important;}
+    .gantt-axis{border-bottom-color:#999 !important;}
+    .gantt-track-row{border-bottom-color:#ddd !important;}
+    .gantt-gridline{border-left-color:#e2e2e2 !important;}
+    .gantt-bar, .gb-progress, .lg-dot, .stat-box .num, .tp-fill{
+      -webkit-print-color-adjust:exact !important;
+      print-color-adjust:exact !important;
+    }
+    .gantt-bar{box-shadow:0 0 0 1px rgba(0,0,0,.5) !important;}
+    .gb-label{color:#fff !important; text-shadow:0 1px 2px rgba(0,0,0,.9) !important;}
+    .gb-outside{color:#333 !important;}
+    .gantt-today{border-left-color:#c9612b !important;}
+    .gantt-today span{color:#c9612b !important;}
+    .task-issues{background:#fff !important; border-left-color:#c0392b !important;}
+    .ti-row{color:#333 !important;}
+    .ti-row b{color:#c0392b !important;}
+    .tp-bar{border-color:#bbb !important; background:#eee !important;}
+    .tp-pct{color:#111 !important;}
+    .var-ahead{color:#1a7f68 !important;}
+    .var-behind{color:#c0392b !important;}
+    .var-ontrack{color:#555 !important;}
+    .report-meta, .ri-meta{color:#444 !important;}
   }
 
   ::-webkit-scrollbar{width:10px;height:10px;}
@@ -843,7 +990,7 @@
   .voice-modal-body{padding:18px;}
   .voice-note{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
+    font-size:11.5px;
     line-height:1.6;
     color:var(--teal);
     border:1px solid var(--teal-dim);
@@ -875,7 +1022,7 @@
   }
   .voice-status{
     font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
+    font-size:11.5px;
     color:var(--muted);
   }
   #voiceTranscript{
@@ -933,7 +1080,7 @@
     align-items:center;
     gap:5px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     text-transform:uppercase;
     letter-spacing:.03em;
     color:var(--text);
@@ -973,7 +1120,7 @@
   }
   .npi-milestone label{
     font-family:'IBM Plex Mono', monospace;
-    font-size:9.5px;
+    font-size:11px;
     text-transform:uppercase;
     color:var(--muted);
     display:block;
@@ -995,11 +1142,11 @@
   }
   .npi-progress-fill{ height:100%; background:var(--teal); }
   .npi-progress-text{
-    font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--muted); margin-top:4px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-top:4px;
   }
   .npi-badge{
     display:inline-block; padding:2px 7px; font-family:'IBM Plex Mono', monospace;
-    font-size:9px; text-transform:uppercase; border-radius:2px; letter-spacing:.02em;
+    font-size:10.5px; text-transform:uppercase; border-radius:2px; letter-spacing:.02em;
   }
   .npi-badge.status-none{ background:var(--panel); color:var(--muted-2); border:1px solid var(--line); }
   .npi-badge.status-progress{ background:rgba(255,139,61,.15); color:var(--accent); border:1px solid var(--accent-dim); }
@@ -1016,7 +1163,7 @@
     padding:12px 14px; border-bottom:1px solid var(--line);
   }
   .component-head h3{ font-family:'Space Grotesk', sans-serif; font-size:14px; margin:0; }
-  .component-head .comp-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+  .component-head .comp-meta{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-top:2px; }
   .component-body{ padding:14px; }
   .component-notes{ font-size:12px; color:var(--muted); margin-bottom:12px; font-style:italic; }
 
@@ -1039,7 +1186,7 @@
   }
   @media (max-width:640px){ .supplier-status-row{ grid-template-columns:1fr 1fr; } }
   .supplier-status-row .ss-field label{
-    font-family:'IBM Plex Mono', monospace; font-size:9px; text-transform:uppercase;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase;
     color:var(--muted); display:block; margin-bottom:4px;
   }
   .supplier-status-row select{
@@ -1057,15 +1204,15 @@
     padding:6px 7px; font-size:11px; font-family:'IBM Plex Sans', sans-serif; border-radius:var(--radius);
   }
   .file-cat-row input[type=file]{
-    font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); max-width:180px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); max-width:180px;
   }
   .file-chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
   .file-chip{
     display:flex; align-items:center; gap:6px;
     background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius);
-    padding:4px 8px; font-family:'IBM Plex Mono', monospace; font-size:10px;
+    padding:4px 8px; font-family:'IBM Plex Mono', monospace; font-size:11px;
   }
-  .file-chip .fc-cat{ color:var(--accent); text-transform:uppercase; font-size:8.5px; }
+  .file-chip .fc-cat{ color:var(--accent); text-transform:uppercase; font-size:10px; }
   .file-chip button{
     background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; padding:0 0 0 4px;
   }
@@ -1073,6 +1220,37 @@
   .file-chip a{ color:var(--text); text-decoration:none; }
   .file-chip a:hover{ color:var(--teal); }
   .comp-btn-row{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+
+  .price-tiers{
+    border:1px solid var(--line); background:var(--panel-2);
+    padding:10px; margin:10px 0; border-radius:var(--radius);
+  }
+  .tier-head, .tier-row{
+    display:grid; grid-template-columns:1fr 1fr 80px 28px;
+    gap:8px; align-items:center;
+  }
+  .tier-head{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    text-transform:uppercase; color:var(--muted); margin-bottom:6px; letter-spacing:.03em;
+  }
+  .tier-row{ margin-bottom:6px; }
+  .tier-row input{ width:100%; }
+  .tier-total{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--teal); text-align:right;
+  }
+  .tier-remove{
+    background:transparent; border:1px solid var(--line); color:var(--muted);
+    width:26px; height:26px; cursor:pointer; border-radius:var(--radius); font-size:11px;
+  }
+  .tier-remove:hover{ border-color:var(--high); color:var(--high); }
+  .tier-empty{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted-2);
+    padding:6px 0 8px;
+  }
+  @media (max-width:640px){
+    .tier-head{ display:none; }
+    .tier-row{ grid-template-columns:1fr 1fr 60px 28px; gap:5px; }
+  }
 
   .sup-section{
     border:1px solid var(--line-soft);
@@ -1083,7 +1261,7 @@
   .sup-section summary{
     padding:8px 10px;
     font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
+    font-size:11px;
     text-transform:uppercase;
     letter-spacing:.03em;
     color:var(--accent);
@@ -1101,7 +1279,7 @@
   }
   .product-row.is-archived{ opacity:.6; border-style:dashed; }
   .product-row .pr-name{ font-family:'Space Grotesk', sans-serif; font-size:13px; }
-  .product-row .pr-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+  .product-row .pr-meta{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); margin-top:2px; }
   .product-row .pr-actions{ display:flex; gap:6px; flex-shrink:0; }
   .task-card.is-archived{ opacity:.6; }
   .task-card.is-archived .stripe{ background:var(--muted-2) !important; }
@@ -1229,9 +1407,37 @@
             </div>
 
             <div class="field">
+              <label for="f_progress">Progress <span id="progressValueLabel" class="progress-value">0%</span></label>
+              <input type="range" id="f_progress" min="0" max="100" step="5" value="0" class="progress-slider">
+              <div class="field-hint">The date/time you set this is recorded, so the Progress Report can tell whether you are ahead of or behind schedule.</div>
+            </div>
+
+            <div class="field">
               <label for="f_notes">Notes</label>
               <textarea id="f_notes" placeholder="Additional comments..."></textarea>
             </div>
+
+            <details class="form-section">
+              <summary>Issues &amp; Lessons Learned</summary>
+              <div class="form-section-body">
+                <div class="field">
+                  <label for="f_issues">Issues Encountered</label>
+                  <textarea id="f_issues" placeholder="What went wrong, blockers, unexpected problems..."></textarea>
+                </div>
+                <div class="field">
+                  <label for="f_timeLost">Time Lost (hours)</label>
+                  <input type="number" id="f_timeLost" min="0" step="0.5" placeholder="0">
+                </div>
+                <div class="field">
+                  <label for="f_solutions">Possible Solutions</label>
+                  <textarea id="f_solutions" placeholder="How the issue was solved, or options considered..."></textarea>
+                </div>
+                <div class="field">
+                  <label for="f_nextSteps">Next Steps to Prevent Recurrence</label>
+                  <textarea id="f_nextSteps" placeholder="Actions to avoid this issue in the future..."></textarea>
+                </div>
+              </div>
+            </details>
 
             <div class="check-row">
               <input type="checkbox" id="f_done">
@@ -1773,17 +1979,32 @@
       ocnEnabled: document.getElementById('f_ocnEnabled').checked,
       ocnNumber: document.getElementById('f_ocnNumber').value.trim(),
       notes: document.getElementById('f_notes').value.trim(),
+      progress: parseInt(document.getElementById('f_progress').value, 10) || 0,
+      issues: document.getElementById('f_issues').value.trim(),
+      timeLost: parseFloat(document.getElementById('f_timeLost').value) || 0,
+      solutions: document.getElementById('f_solutions').value.trim(),
+      nextSteps: document.getElementById('f_nextSteps').value.trim(),
       done: document.getElementById('f_done').checked
     };
+    // If completed, progress is implicitly 100%
+    if(task.done && task.progress < 100) task.progress = 100;
 
     if(editingId){
       var idx = tasks.findIndex(function(t){return t.id === editingId;});
+      var prevTask = idx > -1 ? tasks[idx] : null;
+      // Only stamp a new progress timestamp when the value actually changed —
+      // otherwise unrelated edits would falsely reset the schedule baseline.
+      task.progressAt = (prevTask && prevTask.progress === task.progress && prevTask.progressAt)
+        ? prevTask.progressAt
+        : new Date().toISOString();
+      task.archived = prevTask ? !!prevTask.archived : false;
       if(idx > -1) tasks[idx] = task;
       editingId = null;
       document.getElementById('btnSubmit').textContent = 'Add Activity';
       document.getElementById('formModeTag').textContent = 'NEW';
       document.getElementById('btnCancelEdit').style.display = 'none';
     } else {
+      task.progressAt = new Date().toISOString();
       tasks.push(task);
     }
 
@@ -1791,6 +2012,8 @@
     form.reset();
     selectedPriority = 'Medium';
     document.querySelectorAll('.priority-btn').forEach(function(b){b.classList.toggle('active', b.dataset.p==='Medium');});
+    document.getElementById('f_progress').value = 0;
+    document.getElementById('progressValueLabel').textContent = '0%';
     document.getElementById('rdField').classList.remove('show');
     document.getElementById('ecrField').classList.remove('show');
     document.getElementById('ocnField').classList.remove('show');
@@ -1802,6 +2025,8 @@
     form.reset();
     selectedPriority = 'Medium';
     document.querySelectorAll('.priority-btn').forEach(function(b){b.classList.toggle('active', b.dataset.p==='Medium');});
+    document.getElementById('f_progress').value = 0;
+    document.getElementById('progressValueLabel').textContent = '0%';
     document.getElementById('rdField').classList.remove('show');
     document.getElementById('ecrField').classList.remove('show');
     document.getElementById('ocnField').classList.remove('show');
@@ -1827,6 +2052,12 @@
     document.getElementById('f_ocnEnabled').checked = t.ocnEnabled;
     document.getElementById('f_ocnNumber').value = t.ocnNumber || '';
     document.getElementById('f_notes').value = t.notes || '';
+    document.getElementById('f_progress').value = t.progress || 0;
+    document.getElementById('progressValueLabel').textContent = (t.progress || 0) + '%';
+    document.getElementById('f_issues').value = t.issues || '';
+    document.getElementById('f_timeLost').value = t.timeLost || '';
+    document.getElementById('f_solutions').value = t.solutions || '';
+    document.getElementById('f_nextSteps').value = t.nextSteps || '';
     document.getElementById('f_done').checked = t.done;
     document.getElementById('rdField').classList.toggle('show', t.rd);
     document.getElementById('ecrField').classList.toggle('show', t.ecrEnabled);
@@ -1858,6 +2089,82 @@
   var WORK_LUNCH_START = 13;
   var WORK_LUNCH_END = 14;
   var WORK_DAY_END = 18;
+
+  function taskProgressHTML(t){
+    var pct = t.progress || 0;
+    if(pct === 0 && !t.done) return '';
+    if(t.done) pct = 100;
+    var v = scheduleVariance(t);
+    var varianceHTML = '';
+    if(v && v.state !== 'on-track'){
+      var cls = v.state === 'ahead' ? 'var-ahead' : 'var-behind';
+      var word = v.state === 'ahead' ? 'ahead of schedule' : 'behind schedule';
+      varianceHTML = '<span class="task-variance '+cls+'">'+fmtHours(v.deltaHours)+' '+word+'</span>';
+    } else if(v && v.state === 'on-track'){
+      varianceHTML = '<span class="task-variance var-ontrack">on track</span>';
+    }
+    return '<div class="task-progress">'+
+      '<div class="tp-bar"><div class="tp-fill'+(t.done?' tp-done':'')+'" style="width:'+pct+'%;"></div></div>'+
+      '<div class="tp-labels"><span class="tp-pct">'+pct+'%</span>'+varianceHTML+'</div>'+
+    '</div>';
+  }
+
+  function taskIssuesHTML(t){
+    if(!t.issues && !t.timeLost && !t.solutions && !t.nextSteps) return '';
+    var rows = '';
+    if(t.issues) rows += '<div class="ti-row"><b>Issue</b> '+escapeHtml(t.issues)+'</div>';
+    if(t.timeLost) rows += '<div class="ti-row"><b>Time Lost</b> '+fmtHours(t.timeLost)+'</div>';
+    if(t.solutions) rows += '<div class="ti-row"><b>Solution</b> '+escapeHtml(t.solutions)+'</div>';
+    if(t.nextSteps) rows += '<div class="ti-row"><b>Next Steps</b> '+escapeHtml(t.nextSteps)+'</div>';
+    return '<div class="task-issues">'+rows+'</div>';
+  }
+
+  var progressSlider = document.getElementById('f_progress');
+  if(progressSlider){
+    progressSlider.addEventListener('input', function(){
+      document.getElementById('progressValueLabel').textContent = this.value + '%';
+    });
+  }
+
+  // Compares the manually-set progress % against how much of the planned
+  // working time had actually elapsed at the moment that % was recorded.
+  // Returns null when there is nothing meaningful to compare.
+  function scheduleVariance(t){
+    if(t.done) return null;
+    if(t.progress == null) return null;
+    var stamp = t.progressAt ? new Date(t.progressAt) : null;
+    if(!stamp || isNaN(stamp.getTime())) return null;
+    var start = new Date(t.start), end = new Date(t.end);
+    if(isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+    var plannedHours = hoursBetween(t.start, t.end);
+    if(plannedHours <= 0) return null;
+
+    if(stamp <= start){
+      // Progress recorded before the activity was due to start.
+      return t.progress > 0
+        ? { state:'ahead', deltaHours: hoursBetween(stamp.toISOString(), t.start), expectedPct: 0, note:'started early' }
+        : null;
+    }
+
+    var elapsedHours = hoursBetween(t.start, stamp.toISOString());
+    var expectedPct = Math.max(0, Math.min(100, (elapsedHours / plannedHours) * 100));
+    var diffPct = t.progress - expectedPct;
+    // Convert the percentage gap into planned working hours ahead/behind.
+    var deltaHours = Math.abs(diffPct) / 100 * plannedHours;
+
+    var state = 'on-track';
+    if(diffPct > 5) state = 'ahead';
+    else if(diffPct < -5) state = 'behind';
+
+    return {
+      state: state,
+      diffPct: diffPct,
+      expectedPct: expectedPct,
+      deltaHours: deltaHours,
+      stamp: stamp
+    };
+  }
 
   function hoursBetween(start, end){
     var s = new Date(start);
@@ -1955,7 +2262,9 @@
             '<span><b>Duration</b> '+fmtHours(hoursBetween(t.start,t.end))+'</span>'+
             '<span><b>Priority</b> '+t.priority+'</span>'+
           '</div>'+
+          taskProgressHTML(t)+
           (t.notes ? '<div class="task-notes">'+escapeHtml(t.notes)+'</div>' : '')+
+          taskIssuesHTML(t)+
         '</div>'+
         '<div class="task-actions">'+
           '<button class="btn btn-small" onclick="EngOps.edit(\''+t.id+'\')">Edit</button>'+
@@ -2231,23 +2540,43 @@
     var pad = span * 0.04;
     rangeStart -= pad; rangeEnd += pad; span = rangeEnd - rangeStart;
 
-    var statusColor = { done:'#43c6ac', progress:'#ff8b3d', planned:'#7fb8ff' };
+    var statusColor = { done:'#3fb99f', progress:'#e8762a', planned:'#4f8fd6' };
     var statusText = { done:'Completed', progress:'WIP', planned:'Next Steps' };
 
     var rowsLabels = sorted.map(function(t){
-      return '<div class="gantt-label" title="'+escapeHtml(t.title)+'">'+escapeHtml(t.title)+'</div>';
+      return '<div class="gantt-label" title="'+escapeHtml(t.title)+'">'+
+        '<span class="gl-title">'+escapeHtml(t.title)+'</span>'+
+        '<span class="gl-sub">'+escapeHtml(t.product||'')+'</span>'+
+      '</div>';
     }).join('');
+
+    var ticks = 6;
+    var gridHtml = '';
+    for(var g = 0; g <= ticks; g++){
+      gridHtml += '<div class="gantt-gridline" style="left:'+((g/ticks)*100).toFixed(2)+'%;"></div>';
+    }
 
     var rowsTracks = sorted.map(function(t){
-      var s = new Date(t.start).getTime(), e = new Date(t.end).getTime();
-      var left = (s - rangeStart) / span * 100;
-      var width = Math.max((e - s) / span * 100, 0.8);
+      var s2 = new Date(t.start).getTime(), e2 = new Date(t.end).getTime();
+      var left = (s2 - rangeStart) / span * 100;
+      var width = Math.max((e2 - s2) / span * 100, 1.2);
       var status = taskStatus(t);
-      var tip = t.title+' · '+statusText[status]+' · '+fmtDate(t.start)+' \u2192 '+fmtDate(t.end)+' · '+fmtHours(hoursBetween(t.start,t.end));
-      return '<div class="gantt-track-row"><div class="gantt-bar" style="left:'+left.toFixed(2)+'%; width:'+width.toFixed(2)+'%; background:'+statusColor[status]+';" title="'+escapeHtml(tip)+'"></div></div>';
+      var pct = t.done ? 100 : (t.progress || 0);
+      var dur = fmtHours(hoursBetween(t.start,t.end));
+      var tip = t.title+' \u00b7 '+statusText[status]+' \u00b7 '+fmtDate(t.start)+' \u2192 '+fmtDate(t.end)+' \u00b7 '+dur+' \u00b7 '+pct+'% complete';
+      // Bars carry a readable inline label; the darker inner fill shows how much
+      // of the bar is actually complete, so plan vs. progress is visible at a glance.
+      var barLabel = (width > 12) ? '<span class="gb-label">'+pct+'%</span>' : '';
+      return '<div class="gantt-track-row">'+
+        '<div class="gantt-bar" style="left:'+left.toFixed(2)+'%; width:'+width.toFixed(2)+'%; background:'+statusColor[status]+';" title="'+escapeHtml(tip)+'">'+
+          '<div class="gb-progress" style="width:'+pct+'%;"></div>'+
+          barLabel+
+        '</div>'+
+        (width <= 12 ? '<span class="gb-outside" style="left:'+(left+width+0.6).toFixed(2)+'%;">'+pct+'%</span>' : '')+
+      '</div>';
     }).join('');
 
-    var ticks = 6, axisHtml = '';
+    var axisHtml = '';
     for(var i = 0; i <= ticks; i++){
       var frac = i / ticks;
       var d = new Date(rangeStart + frac * span);
@@ -2274,15 +2603,17 @@
           '</div>'+
           '<div class="gantt-tracks">'+
             '<div class="gantt-axis">'+axisHtml+'</div>'+
+            '<div class="gantt-grid">'+gridHtml+'</div>'+
             rowsTracks+
             todayMarker+
           '</div>'+
         '</div>'+
       '</div>'+
       '<div class="gantt-legend">'+
-        '<span class="lg-row"><span class="lg-dot" style="background:#43c6ac;"></span>Completed</span>'+
-        '<span class="lg-row"><span class="lg-dot" style="background:#ff8b3d;"></span>WIP</span>'+
-        '<span class="lg-row"><span class="lg-dot" style="background:#7fb8ff;"></span>Next Steps</span>'+
+        '<span class="lg-row"><span class="lg-dot" style="background:#3fb99f;"></span>Completed</span>'+
+        '<span class="lg-row"><span class="lg-dot" style="background:#e8762a;"></span>WIP</span>'+
+        '<span class="lg-row"><span class="lg-dot" style="background:#4f8fd6;"></span>Next Steps</span>'+
+        '<span class="lg-row"><span class="lg-dot lg-dot-hatch"></span>Darker fill = % complete</span>'+
       '</div>'+
     '</div>';
   }
@@ -2309,10 +2640,30 @@
     var maxEnd = selected.reduce(function(m,t){ var d=new Date(t.end); return (!m||d>m)?d:m; }, null);
 
     var completionPct = totalHours > 0 ? Math.round((doneHours/totalHours)*100) : 0;
+    var behindCount = selected.filter(function(t){
+      var v = scheduleVariance(t);
+      return v && v.state === 'behind';
+    }).length;
+    var totalTimeLost = selected.reduce(function(sum,t){ return sum + (t.timeLost || 0); }, 0);
 
     function itemsHtml(list){
       if(list.length === 0) return '<div class="report-col-empty">No activities in this category.</div>';
       return list.map(function(t){
+        var pct = t.done ? 100 : (t.progress || 0);
+        var v = scheduleVariance(t);
+        var vHtml = '';
+        if(v){
+          if(v.state === 'behind') vHtml = '<span class="ri-var var-behind">'+fmtHours(v.deltaHours)+' behind</span>';
+          else if(v.state === 'ahead') vHtml = '<span class="ri-var var-ahead">'+fmtHours(v.deltaHours)+' ahead</span>';
+          else vHtml = '<span class="ri-var var-ontrack">on track</span>';
+        }
+        var issueHtml = '';
+        if(t.issues || t.timeLost){
+          issueHtml = '<div class="ri-issue">'+
+            (t.issues ? '<b>Issue</b> '+escapeHtml(t.issues) : '')+
+            (t.timeLost ? '<span class="ri-timelost">'+fmtHours(t.timeLost)+' lost</span>' : '')+
+          '</div>';
+        }
         return '<div class="report-item">'+
           '<div class="ri-title">'+escapeHtml(t.title)+'</div>'+
           '<div class="ri-meta">'+
@@ -2321,6 +2672,11 @@
             '<span>'+fmtHours(hoursBetween(t.start,t.end))+'</span>'+
             '<span>'+fmtDate(t.start)+'</span>'+
           '</div>'+
+          '<div class="ri-progress">'+
+            '<div class="tp-bar"><div class="tp-fill'+(t.done?' tp-done':'')+'" style="width:'+pct+'%;"></div></div>'+
+            '<div class="ri-progress-labels"><span class="tp-pct">'+pct+'%</span>'+vHtml+'</div>'+
+          '</div>'+
+          issueHtml+
         '</div>';
       }).join('');
     }
@@ -2342,6 +2698,8 @@
         '<div class="stat-box"><div class="num">'+done.length+'</div><div class="lbl">Completed</div></div>'+
         '<div class="stat-box"><div class="num">'+progress.length+'</div><div class="lbl">WIP</div></div>'+
         '<div class="stat-box"><div class="num">'+planned.length+'</div><div class="lbl">Next Steps</div></div>'+
+        '<div class="stat-box"><div class="num'+(behindCount>0?' num-warn':'')+'">'+behindCount+'</div><div class="lbl">Behind Schedule</div></div>'+
+        '<div class="stat-box"><div class="num'+(totalTimeLost>0?' num-warn':'')+'">'+(Math.round(totalTimeLost*10)/10)+'</div><div class="lbl">Hours Lost to Issues</div></div>'+
       '</div>'+
 
       ganttHTML(selected)+
@@ -2899,6 +3257,9 @@
         type: d.type,
         rd: !!d.rd,
         rdHours: d.rd ? (parseFloat(d.rdHours) || 0) : 0,
+        progress: 0,
+        progressAt: new Date().toISOString(),
+        issues: '', timeLost: 0, solutions: '', nextSteps: '',
         ecrEnabled: !!d.ecrEnabled,
         ecrNumber: d.ecrNumber || '',
         ocnEnabled: !!d.ocnEnabled,
@@ -2990,10 +3351,9 @@
   var COMPLIANCE_STATUSES = ['Pending','Submitted','Approved','Rejected'];
   var VALIDATION_STATUSES = ['Pending','In Progress','Passed','Failed'];
   var FILE_CATEGORIES = ['Quotation','Compliance','Sample Report','Validation Report','Other'];
+  var MAX_ATTACHMENT_SIZE = 8 * 1024 * 1024;
   var COMPONENT_TYPES = ['Mechanical','Optical','Electrical','PCBA','Packaging','Other'];
   var MAKEBUY_OPTIONS = ['Buy CHN','Buy IT','Buy Other','Make'];
-  var CHECKED_OPTIONS = ['No','Yes'];
-  var INCOMING_INSPECTION_OPTIONS = ['Pending','Passed','Failed','N/A'];
   var PENDINGS_OPTIONS = ['','R&D','Quote','LT','CER','Validation','TRO','Quality','PO','Supply-chain'];
   var NPI_PRIORITY_OPTIONS = ['1. CRITICAL','1. HIGH','2. MED','3. LOW'];
 
@@ -3041,7 +3401,7 @@
       var agg = computeProductAggregates(p);
       var st = productStatus[p] || DEFAULT_PRODUCT_STATUS;
       return '<div class="npi-product-card">' +
-        '<div class="npi-title"><span>'+escapeHtml(p)+'</span><span style="font-family:\'IBM Plex Mono\',monospace; font-size:10px; color:var(--muted);">'+agg.totalComps+' component'+(agg.totalComps===1?'':'s')+'</span></div>' +
+        '<div class="npi-title"><span>'+escapeHtml(p)+'</span><span style="font-family:\'IBM Plex Mono\',monospace; font-size:11px; color:var(--muted);">'+agg.totalComps+' component'+(agg.totalComps===1?'':'s')+'</span></div>' +
         '<div class="npi-milestones">' +
           '<div class="npi-milestone"><label>Quotation Status</label>' +
             progressBarHTML(agg.quotationPct) +
@@ -3084,8 +3444,8 @@
       archived: false,
       type: 'Mechanical', partNumber: '', description: '', source: '', legacyPN: '',
       dfmUpdates: '', lastUpdate: '', ecnNumber: '', qualityCritical: false,
-      qty1kit: '', qty5kit: '', qty10kit: '', inventory: '',
-      incomingInspection: 'Pending', troApproved: false, finalReports: ''
+      qty1kit: '', inventory: '',
+      troApproved: false, finalReportFiles: []
     };
   }
   function newSupplierDefaults(){
@@ -3096,7 +3456,7 @@
       moq: '', unitCost: '', totalCost: '', leadTimeWeeks: '',
       quotationStatus: 'Not Requested',
       prIrSrDate: '', targetPODate: '', targetForecast: '', effectivePODate: '', promiseDate: '', effectiveArrivalDate: '',
-      checked: 'No',
+      priceTiers: [],
       sampleStatus: 'Not Requested', samplesValidation: 'Pending', supplierValidationStatus: 'Pending',
       complianceStatus: 'Pending', pendings: '', priority: '2. MED', owner: '', supplierNotes: '',
       files: []
@@ -3149,6 +3509,49 @@
   function npiInputHTML(type, value, attrs){
     return '<input type="'+type+'" value="'+escapeHtml(value==null?'':value)+'" '+(attrs||'')+'>';
   }
+  // <details> elements lose their open/closed state whenever the list is
+  // re-rendered (e.g. after adding a price break), which would collapse the
+  // section the user is actively filling in. Track it explicitly.
+  var openSections = {};
+  function isSectionOpen(key, defaultOpen){
+    if(openSections.hasOwnProperty(key)) return openSections[key];
+    return !!defaultOpen;
+  }
+  document.getElementById('componentList').addEventListener('toggle', function(e){
+    var el = e.target;
+    if(el && el.dataset && el.dataset.secKey){
+      openSections[el.dataset.secKey] = el.open;
+    }
+  }, true);
+
+  function compFileChipHTML(f){
+    return '<span class="file-chip">' +
+      '<a href="#" class="file-open" data-file-id="'+f.id+'" title="'+fileSizeLabel(f.size||0)+'">'+escapeHtml(f.name)+'</a>' +
+      '<button type="button" class="comp-file-delete" data-file-id="'+f.id+'" title="Delete file">✕</button>' +
+    '</span>';
+  }
+
+  // Suppliers usually quote a price that steps down as volume goes up, so a
+  // single MOQ/unit-cost pair can't represent a real quotation. Each tier is
+  // {moq, unitCost}; total cost per tier is derived, never stored.
+  function priceTiersHTML(s){
+    var tiers = s.priceTiers || [];
+    var rows = tiers.map(function(t, i){
+      var total = (parseFloat(t.moq)||0) * (parseFloat(t.unitCost)||0);
+      return '<div class="tier-row" data-tier-idx="'+i+'">' +
+        '<input type="number" class="vd-input" data-tier-field="moq" placeholder="Qty (MOQ)" min="0" value="'+escapeHtml(t.moq==null?'':t.moq)+'">' +
+        '<input type="number" class="vd-input" data-tier-field="unitCost" placeholder="Unit cost" min="0" step="0.01" value="'+escapeHtml(t.unitCost==null?'':t.unitCost)+'">' +
+        '<span class="tier-total">'+(total ? total.toFixed(2) : '—')+'</span>' +
+        '<button type="button" class="tier-remove" title="Remove tier">✕</button>' +
+      '</div>';
+    }).join('');
+    return '<div class="price-tiers">' +
+      '<div class="tier-head"><span>Qty / MOQ</span><span>Unit Cost</span><span>Total</span><span></span></div>' +
+      (rows || '<div class="tier-empty">No price break added yet.</div>') +
+      '<button type="button" class="btn btn-small tier-add">+ Add Price Break</button>' +
+    '</div>';
+  }
+
   function npiField(label, inputHtml){
     return '<div class="ss-field"><label>'+label+'</label>'+inputHtml+'</div>';
   }
@@ -3157,7 +3560,7 @@
     return '<div class="supplier-card'+(s.archived?' is-archived':'')+'" data-comp-id="'+compId+'" data-supplier-id="'+s.id+'">' +
       '<div class="supplier-head">' +
         '<input type="text" class="supplier-name-input" data-field="name" value="'+escapeHtml(s.name)+'" placeholder="Supplier name">' +
-        (s.archived ? '<span style="font-family:\'IBM Plex Mono\',monospace; font-size:9px; text-transform:uppercase; color:var(--muted-2); margin-right:6px;">Archived</span>' : '') +
+        (s.archived ? '<span style="font-family:\'IBM Plex Mono\',monospace; font-size:10.5px; text-transform:uppercase; color:var(--muted-2); margin-right:6px;">Archived</span>' : '') +
         '<button type="button" class="btn btn-small supplier-archive-toggle" style="margin-right:6px;">'+(s.archived?'Restore':'Archive')+'</button>' +
         '<button type="button" class="dc-remove supplier-remove" title="Remove supplier">✕</button>' +
       '</div>' +
@@ -3168,7 +3571,7 @@
         npiField('Owner', npiInputHTML('text', s.owner, 'data-field="owner"')) +
       '</div>' +
 
-      '<details class="sup-section">' +
+      '<details class="sup-section" data-sec-key="'+s.id+':sourcing"'+(isSectionOpen(s.id+':sourcing')?' open':'')+'>' +
         '<summary>Sourcing &amp; Commercial</summary>' +
         '<div class="sup-section-body">' +
           '<div class="supplier-status-row">' +
@@ -3179,17 +3582,18 @@
           '</div>' +
           '<div class="supplier-status-row">' +
             npiField('Contact for Quote', npiInputHTML('text', s.contactForQuote, 'data-field="contactForQuote"')) +
-            npiField('MOQ', npiInputHTML('number', s.moq, 'data-field="moq"')) +
-            npiField('Unit Cost', npiInputHTML('number', s.unitCost, 'data-field="unitCost" step="0.01"')) +
-            npiField('Total Cost', npiInputHTML('number', s.totalCost, 'data-field="totalCost" step="0.01"')) +
-          '</div>' +
-          '<div class="supplier-status-row">' +
             npiField('LT (weeks)', npiInputHTML('number', s.leadTimeWeeks, 'data-field="leadTimeWeeks"')) +
+          '</div>' +
+          priceTiersHTML(s) +
+          '<div class="file-zone">' +
+            '<label style="font-family:\'IBM Plex Mono\', monospace; font-size:11px; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:6px;">Quotation Files</label>' +
+            '<div class="file-cat-row"><input type="file" class="file-input-el" data-fixed-cat="Quotation"></div>' +
+            '<div class="file-chip-list">' + (s.files||[]).filter(function(f){ return f.category === 'Quotation'; }).map(fileChipHTML).join('') + '</div>' +
           '</div>' +
         '</div>' +
       '</details>' +
 
-      '<details class="sup-section">' +
+      '<details class="sup-section" data-sec-key="'+s.id+':dates"'+(isSectionOpen(s.id+':dates')?' open':'')+'>' +
         '<summary>Dates</summary>' +
         '<div class="sup-section-body">' +
           '<div class="supplier-status-row">' +
@@ -3205,7 +3609,7 @@
         '</div>' +
       '</details>' +
 
-      '<details class="sup-section">' +
+      '<details class="sup-section" data-sec-key="'+s.id+':quality"'+(isSectionOpen(s.id+':quality')?' open':'')+'>' +
         '<summary>Quality &amp; Status</summary>' +
         '<div class="sup-section-body">' +
           '<div class="supplier-status-row">' +
@@ -3215,7 +3619,6 @@
             npiField('Compliance', npiSelectHTML(COMPLIANCE_STATUSES, s.complianceStatus, 'data-field="complianceStatus"')) +
           '</div>' +
           '<div class="supplier-status-row">' +
-            npiField('Checked', npiSelectHTML(CHECKED_OPTIONS, s.checked, 'data-field="checked"')) +
           '</div>' +
           '<div class="field"><label>Notes</label><textarea data-field="supplierNotes" rows="2">'+escapeHtml(s.supplierNotes||'')+'</textarea></div>' +
         '</div>' +
@@ -3241,7 +3644,7 @@
         '</div>' +
       '</div>' +
       '<div class="component-body">' +
-        '<details class="sup-section" open>' +
+        '<details class="sup-section" data-sec-key="'+c.id+':details"'+(isSectionOpen(c.id+':details', true)?' open':'')+'>' +
           '<summary>Component Details</summary>' +
           '<div class="sup-section-body">' +
             '<div class="supplier-status-row">' +
@@ -3259,14 +3662,15 @@
             '</div>' +
             '<div class="supplier-status-row">' +
               npiField('Qty / 1 kit', npiInputHTML('number', c.qty1kit, 'data-comp-field="qty1kit"')) +
-              npiField('Qty / 5 kit', npiInputHTML('number', c.qty5kit, 'data-comp-field="qty5kit"')) +
-              npiField('Qty / 10 kit', npiInputHTML('number', c.qty10kit, 'data-comp-field="qty10kit"')) +
               npiField('Inventory', npiInputHTML('text', c.inventory, 'data-comp-field="inventory"')) +
             '</div>' +
             '<div class="supplier-status-row">' +
-              npiField('Incoming Inspection', npiSelectHTML(INCOMING_INSPECTION_OPTIONS, c.incomingInspection, 'data-comp-field="incomingInspection"')) +
               '<div class="ss-field"><label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" data-comp-field="troApproved" '+(c.troApproved?'checked':'')+' style="width:auto;"> TRO Approved</label></div>' +
-              npiField('Final Reports', npiInputHTML('text', c.finalReports, 'data-comp-field="finalReports"')) +
+            '</div>' +
+            '<div class="file-zone">' +
+              '<label style="font-family:\'IBM Plex Mono\', monospace; font-size:11px; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:6px;">Final Reports</label>' +
+              '<div class="file-cat-row"><input type="file" class="comp-file-input"></div>' +
+              '<div class="file-chip-list">' + (c.finalReportFiles||[]).map(function(f){ return compFileChipHTML(f); }).join('') + '</div>' +
             '</div>' +
           '</div>' +
         '</details>' +
@@ -3320,11 +3724,44 @@
       var comp = findComponent(compId);
       if(comp){
         comp.suppliers.forEach(function(s){ (s.files||[]).forEach(function(f){ dbDelete(f.id).catch(function(){}); }); });
+        (comp.finalReportFiles||[]).forEach(function(f){ dbDelete(f.id).catch(function(){}); });
       }
       components = components.filter(function(c){ return c.id !== compId; });
       saveComponents(components);
       renderComponentList();
       renderReadinessGrid();
+      return;
+    }
+
+    if(target.classList.contains('tier-add')){
+      var tCard = target.closest('.supplier-card');
+      var tComp = findComponent(tCard.dataset.compId);
+      var tSup = findSupplierIn(tComp, tCard.dataset.supplierId);
+      tSup.priceTiers = tSup.priceTiers || [];
+      tSup.priceTiers.push({ moq:'', unitCost:'' });
+      saveComponents(components);
+      renderComponentList();
+      return;
+    }
+    if(target.classList.contains('tier-remove')){
+      var trCard = target.closest('.supplier-card');
+      var trIdx = parseInt(target.closest('.tier-row').dataset.tierIdx, 10);
+      var trComp = findComponent(trCard.dataset.compId);
+      var trSup = findSupplierIn(trComp, trCard.dataset.supplierId);
+      trSup.priceTiers.splice(trIdx, 1);
+      saveComponents(components);
+      renderComponentList();
+      return;
+    }
+    if(target.classList.contains('comp-file-delete')){
+      e.preventDefault();
+      var cfCard = target.closest('.component-card');
+      var cfComp = findComponent(cfCard.dataset.compId);
+      var cfId = target.dataset.fileId;
+      cfComp.finalReportFiles = (cfComp.finalReportFiles||[]).filter(function(f){ return f.id !== cfId; });
+      saveComponents(components);
+      dbDelete(cfId).catch(function(){});
+      renderComponentList();
       return;
     }
 
@@ -3393,6 +3830,29 @@
 
   function handleComponentFieldChange(e){
     var target = e.target;
+
+    if(target.classList.contains('comp-file-input')){
+      if(e.type !== 'change') return;
+      var cfFile = target.files[0];
+      if(!cfFile) return;
+      var cfCard = target.closest('.component-card');
+      var cfComp = findComponent(cfCard.dataset.compId);
+      if(cfFile.size > MAX_ATTACHMENT_SIZE){
+        alert('This file is ' + Math.round(cfFile.size/1024/1024) + 'MB — please keep attachments under 8MB (files are stored in this browser, not on a server).');
+        target.value = '';
+        return;
+      }
+      var cfId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      dbPut({ id: cfId, blob: cfFile, name: cfFile.name, type: cfFile.type, size: cfFile.size }).then(function(){
+        cfComp.finalReportFiles = cfComp.finalReportFiles || [];
+        cfComp.finalReportFiles.push({ id: cfId, name: cfFile.name, type: cfFile.type, size: cfFile.size, uploadedAt: new Date().toISOString() });
+        saveComponents(components);
+        renderComponentList();
+      }).catch(function(err){ alert('Could not save file: ' + err.message); });
+      target.value = '';
+      return;
+    }
+
     if(!target.dataset.compField) return;
     var card = target.closest('.component-card');
     if(!card) return;
@@ -3412,11 +3872,14 @@
       var file = target.files[0];
       if(!file) return;
       var sCard = target.closest('.supplier-card');
-      var category = sCard.querySelector('.file-cat-select').value;
+      // A fixed-category input (e.g. the Quotation uploader inside the cost
+      // section) has no category dropdown of its own.
+      var catSelect = sCard.querySelector('.file-cat-select');
+      var category = target.dataset.fixedCat || (catSelect ? catSelect.value : 'Other');
       var comp = findComponent(sCard.dataset.compId);
       var sup = findSupplierIn(comp, sCard.dataset.supplierId);
 
-      var MAX_SIZE = 8 * 1024 * 1024;
+      var MAX_SIZE = MAX_ATTACHMENT_SIZE;
       if(file.size > MAX_SIZE){
         alert('This file is ' + Math.round(file.size/1024/1024) + 'MB — please keep attachments under 8MB (files are stored in this browser, not on a server).');
         target.value = '';
@@ -3433,6 +3896,25 @@
         alert('Could not save file: ' + err.message);
       });
       target.value = '';
+      return;
+    }
+
+    if(target.dataset.tierField){
+      var tRow = target.closest('.tier-row');
+      var tCard2 = target.closest('.supplier-card');
+      var tComp2 = findComponent(tCard2.dataset.compId);
+      var tSup2 = findSupplierIn(tComp2, tCard2.dataset.supplierId);
+      var tIdx = parseInt(tRow.dataset.tierIdx, 10);
+      if(tSup2 && tSup2.priceTiers && tSup2.priceTiers[tIdx]){
+        tSup2.priceTiers[tIdx][target.dataset.tierField] = target.value;
+        saveComponents(components);
+        // Update the derived total in place rather than re-rendering, so the
+        // user doesn't lose focus while typing.
+        var moqV = parseFloat(tSup2.priceTiers[tIdx].moq)||0;
+        var costV = parseFloat(tSup2.priceTiers[tIdx].unitCost)||0;
+        var totalEl = tRow.querySelector('.tier-total');
+        if(totalEl) totalEl.textContent = (moqV*costV) ? (moqV*costV).toFixed(2) : '—';
+      }
       return;
     }
 
@@ -3478,6 +3960,11 @@
         ecrEnabled:true, ecrNumber:'ECR-2201',
         ocnEnabled:false, ocnNumber:'',
         notes:'Root cause confirmed with Quality. Fixture redesign requested via ECR-2201.',
+        progress:100, progressAt: hoursAgo(90).toISOString(),
+        issues:'Fixture misalignment was not detectable with the existing go/no-go gauge, so the defect ran for two shifts before detection.',
+        timeLost:6,
+        solutions:'Switched to a dial-indicator check on first article, and re-qualified the fixture datum.',
+        nextSteps:'Add fixture datum verification to the shift start-up checklist; request gauge R&R review for the frame line.',
         done:true
       },
       {
@@ -3489,6 +3976,7 @@
         ecrEnabled:false, ecrNumber:'',
         ocnEnabled:true, ocnNumber:'OCN-0817',
         notes:'Coordinated with Production Team on shift handover.',
+        progress:100, progressAt: new Date().toISOString(),
         done:true
       },
       {
@@ -3500,6 +3988,7 @@
         ecrEnabled:true, ecrNumber:'ECR-2214',
         ocnEnabled:false, ocnNumber:'',
         notes:'Awaiting thermal simulation results before sign-off.',
+        progress:40, progressAt: new Date().toISOString(),
         done:false
       },
       {
@@ -3511,6 +4000,7 @@
         ecrEnabled:false, ecrNumber:'',
         ocnEnabled:false, ocnNumber:'',
         notes:'Root cause under investigation with Test Engineering.',
+        progress:40, progressAt: new Date().toISOString(),
         done:false
       },
       {
@@ -3522,6 +4012,7 @@
         ecrEnabled:false, ecrNumber:'',
         ocnEnabled:false, ocnNumber:'',
         notes:'',
+        progress:40, progressAt: new Date().toISOString(),
         done:false
       },
       {
@@ -3533,6 +4024,7 @@
         ecrEnabled:false, ecrNumber:'',
         ocnEnabled:true, ocnNumber:'OCN-0822',
         notes:'',
+        progress:40, progressAt: new Date().toISOString(),
         done:false
       },
       {
@@ -3544,6 +4036,7 @@
         ecrEnabled:true, ecrNumber:'ECR-2189',
         ocnEnabled:false, ocnNumber:'',
         notes:'Pilot build completed with no major issues.',
+        progress:100, progressAt: new Date().toISOString(),
         done:true
       }
     ];

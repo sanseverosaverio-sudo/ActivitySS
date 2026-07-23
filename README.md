@@ -4,6 +4,27 @@ Dashboard locale per la gestione delle attività quotidiane: elenco attività, d
 
 Nessun server, nessun database, nessun account: è un singolo file HTML autosufficiente.
 
+## Avanzamento attività e criticità
+
+Ogni attività ha:
+- **Barra di avanzamento 0-100%** impostabile a mano. L'app registra **data e ora** in cui imposti la percentuale: da questo il Progress Report calcola se sei **in anticipo o in ritardo**, confrontando la % dichiarata con la quota di tempo lavorativo effettivamente trascorso tra inizio e fine pianificati. Il timestamp si aggiorna solo quando cambi davvero la percentuale, così una modifica ad altri campi non falsa il calcolo.
+- Sezione **Issues & Lessons Learned** (pieghevole): criticità riscontrate, **ore perse** a causa loro, possibili soluzioni, e next step per evitarle in futuro. Compaiono nella card attività e nel Progress Report, con due KPI dedicati: *Behind Schedule* e *Hours Lost to Issues*.
+
+## Leggibilità
+
+La palette è stata ricalcolata verificando i rapporti di contrasto WCAG. In precedenza il grigio secondario (`--muted-2`) era a 3.00:1, sotto il minimo AA di 4.5:1 — difficile da leggere in ambiente illuminato. Ora tutti i colori di testo superano AA nel caso peggiore:
+
+| Colore | Contrasto (worst case) |
+|---|---|
+| testo principale | 14.2:1 |
+| grigio primario | 8.5:1 |
+| grigio secondario | 5.5:1 |
+| arancio / teal / rosso / giallo | 5.5-9.4:1 |
+
+Le dimensioni dei font più piccoli (8.5-10px) sono state portate a un minimo di 10.5-11px.
+
+Il **Gantt** ha barre più alte con riempimento scuro che indica la % completata, etichette su due righe (titolo + prodotto), linee di griglia verticali e marcatore "Today". Gli stili di stampa forzano `print-color-adjust`, così le barre restano visibili e a colori anche nel **PDF esportato** (i browser altrimenti eliminano gli sfondi in stampa).
+
 ## Archiviazione ed eliminazione
 
 Attività, componenti e fornitori (nel tab New Products) hanno un pulsante **Archive/Restore**: archiviare nasconde la voce dalle liste di default (senza cancellarla) — usa la casella **"Show Archived"** vicino ai filtri per rivederle in qualsiasi momento. È reversibile ("Restore" per farla riapparire).
@@ -87,12 +108,12 @@ Il Gantt chart nel Progress Report continua invece a mostrare la durata reale su
 2. **Dashboard** — KPI, grafici a torta/barre su tempo per prodotto, tipo attività e priorità, tabelle di dettaglio con percentuali. Filtro per intervallo di date.
 3. **Progress Report** — selezione libera di attività (per qualsiasi criterio: prodotto, stato, ecc.) → report esecutivo con riquadri *Completed / WIP / Next Steps*, Gantt generale sulla timeline delle attività selezionate, grafici con valori/percentuali, e pulsante **Print / Export PDF** (richiede un browser reale — non l'anteprima file in-app — per aprire il dialogo di stampa/esportazione PDF).
 
-**Campi per componente** (sezione "Component Details", espandibile): Type, Part Number, Legacy PN, ECN Number, Description, Source, DFM Updates, Last Update, Quality Critical (flag), Qty per 1/5/10 kit, Inventory, Incoming Inspection, TRO Approved (flag), Final Reports, Notes.
+**Campi per componente** (sezione "Component Details", espandibile): Type, Part Number, Legacy PN, ECN Number, Description, Source, DFM Updates, Last Update, Quality Critical (flag), Qty per kit, Inventory, TRO Approved (flag), **Final Reports (upload file)**, Notes.
 
 **Campi per fornitore/quotazione** (uno o più per componente, in sezioni espandibili):
-- *Sourcing & Commercial*: Mfg Name, Mfg Part Number, Reseller, M/B (Make/Buy), Contact for Quote, MOQ, Unit Cost, Total Cost, Lead Time (settimane)
+- *Sourcing & Commercial*: Mfg Name, Mfg Part Number, Reseller, M/B (Make/Buy), Contact for Quote, Lead Time (settimane), **fasce prezzo multiple** (una riga per ogni scaglione Qty/MOQ → Unit Cost, con totale calcolato automaticamente — un fornitore quota quasi sempre prezzi diversi per volumi diversi), e subito sotto l'**upload dei file di quotazione**
 - *Dates*: PR/IR/SR Date, Target PO Date, Target Forecast, Effective PO Date, Promise Date, Effective Arrival Date
-- *Quality & Status*: Sample Parts, Samples Validation, Supplier Validation (distinta dalla validazione campioni — es. audit/qualifica del fornitore), Compliance, Checked, Note fornitore
+- *Quality & Status*: Sample Parts, Samples Validation, Supplier Validation (distinta dalla validazione campioni — es. audit/qualifica del fornitore), Compliance, Note fornitore
 - Priority (1. CRITICAL/1. HIGH/2. MED/3. LOW), Pendings (R&D/Quote/LT/CER/Validation/TRO/Quality/PO/Supply-chain), Owner — sempre visibili in alto
 - File allegati categorizzati (Quotation/Compliance/Sample Report/Validation Report/Other)
 
